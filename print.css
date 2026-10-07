@@ -175,9 +175,9 @@ body{
     padding-bottom:1.5mm;
     border-bottom-width:1.5px;
   }
-  .print-header h1{font-size:13pt}
-  .print-header p{font-size:6.5pt;margin-top:1mm}
-  .print-meta{font-size:6pt}
+  .print-header h1{font-size:16pt}
+  .print-header p{font-size:8pt;margin-top:1mm}
+  .print-meta{font-size:7pt}
   .matrix-layout{
     grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);
     gap:2mm;
@@ -196,40 +196,40 @@ body{
   }
   .criteria-table thead th,
   .risk-table thead th{
-    font-size:5.1pt;
-    line-height:1.08;
-  }
-  .criteria-table td{
-    font-size:4.65pt;
+    font-size:6.6pt;
     line-height:1.12;
   }
+  .criteria-table td{
+    font-size:6.1pt;
+    line-height:1.18;
+  }
   .criteria-table .effect-label{
-    width:17mm;
-    font-size:5pt;
+    width:19mm;
+    font-size:6.3pt;
   }
   .risk-table th{
-    font-size:4.8pt;
-    line-height:1.08;
+    font-size:6.2pt;
+    line-height:1.12;
   }
   .risk-table td{
     min-height:0;
-    font-size:4.8pt;
-    line-height:1.08;
+    font-size:6.2pt;
+    line-height:1.12;
     padding-left:.8mm;
     padding-right:.8mm;
   }
   .chance-number{
-    font-size:5.5pt;
-    margin-bottom:.4mm;
+    font-size:7pt;
+    margin-bottom:.5mm;
   }
   .chance-desc{
-    font-size:4.2pt;
-    line-height:1.05;
+    font-size:5.6pt;
+    line-height:1.1;
   }
   .print-footer{
     margin-top:1.5mm;
     padding-top:1mm;
-    font-size:4.5pt;
+    font-size:5.5pt;
   }
 }
 @media(max-width:1100px){

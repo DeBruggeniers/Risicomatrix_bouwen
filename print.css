@@ -235,3 +235,11 @@ body{
 @media(max-width:1100px){
   .matrix-layout{grid-template-columns:1fr}
 }
+
+/* Alle effectrijen in de PDF/printweergave hebben dezelfde hoogte. */
+@media print{
+  .criteria-table tbody tr,
+  .risk-table tbody tr{
+    height:var(--uniform-effect-row-height,auto);
+  }
+}

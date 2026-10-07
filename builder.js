@@ -268,9 +268,52 @@ function renderStep5(){
  bindNav(()=>{document.querySelectorAll('.chance-desc').forEach(x=>config.chanceDescriptions[Number(x.dataset.i)]=x.value.trim());return true});
 }
 function renderStep6(){
- ensureConfigShape();$('step6').innerHTML=`<h2>Stap 6. Risicohouding bepalen</h2><p class="hint">Geef per combinatie van effect en kans de risicoklasse aan.</p><div class="matrix-scroll"><table class="matrix"><thead><tr><th class="effect-head">Effect / Kans</th>${Array.from({length:config.chanceCount},(_,c)=>`<th>${c+1}<br><span style="font-weight:400">${esc(config.chanceDescriptions[c]||'')}</span></th>`).join('')}</tr></thead><tbody>${Array.from({length:config.effectCount},(_,row)=>config.effectCount-1-row).map(e=>`<tr><th class="effect-head">${effectLabel(e)}</th>${Array.from({length:config.chanceCount},(_,c)=>`<td><select class="risk-select" data-e="${e}" data-c="${c}">${RISK_LEVELS.map(r=>`<option value="${r.id}" ${config.riskMatrix[e][c]===r.id?'selected':''}>${r.name}</option>`).join('')}</select></td>`).join('')}</tr>`).join('')}</tbody></table></div><div class="legend">${RISK_LEVELS.map(r=>`<span class="${r.css}">${r.name}</span>`).join('')}</div>${navButtons('Risicomatrix maken')}`;
- document.querySelectorAll('.risk-select').forEach(s=>{const paint=()=>s.className='risk-select '+riskById(s.value).css;paint();s.addEventListener('change',()=>{config.riskMatrix[Number(s.dataset.e)][Number(s.dataset.c)]=s.value;paint()})});
- bindNav(()=>{document.querySelectorAll('.risk-select').forEach(s=>config.riskMatrix[Number(s.dataset.e)][Number(s.dataset.c)]=s.value);saveConfig();showFinal();return false});
+ ensureConfigShape();
+ const effectRows=Array.from({length:config.effectCount},(_,row)=>config.effectCount-1-row).map(e=>{
+   const descriptions=config.values.map(v=>{
+     const text=config.effectDescriptions[v]?.[e]||'Geen beschrijving ingevuld.';
+     return `<div class="effect-reference-item"><strong>${esc(v)}</strong><span>${esc(text).replace(/\\n/g,'<br>')}</span></div>`;
+   }).join('');
+   return `<tr class="risk-row"><th class="effect-head"><div class="effect-head-wrap"><span>${effectLabel(e)}</span><button type="button" class="effect-info-btn" data-e="${e}" aria-expanded="false">Toelichting</button></div></th>${Array.from({length:config.chanceCount},(_,c)=>`<td><select class="risk-select" data-e="${e}" data-c="${c}">${RISK_LEVELS.map(r=>`<option value="${r.id}" ${config.riskMatrix[e][c]===r.id?'selected':''}>${r.name}</option>`).join('')}</select></td>`).join('')}</tr><tr class="effect-reference-row hidden" data-e="${e}"><td colspan="${config.chanceCount+1}"><div class="effect-reference-grid">${descriptions}</div></td></tr>`;
+ }).join('');
+
+ $('step6').innerHTML=`<h2>Stap 6. Risicohouding bepalen</h2><p class="hint">Geef per combinatie van effect en kans de risicoklasse aan. Gebruik de toelichting per effectklasse om de beschrijvingen voor alle organisatiewaarden erbij te houden.</p><div class="step6-tools"><button type="button" class="secondary" id="toggleAllEffectInfo">Alle effectbeschrijvingen tonen</button></div><div class="matrix-scroll"><table class="matrix"><thead><tr><th class="effect-head">Effect / Kans</th>${Array.from({length:config.chanceCount},(_,c)=>`<th>${c+1}<br><span style="font-weight:400">${esc(config.chanceDescriptions[c]||'')}</span></th>`).join('')}</tr></thead><tbody>${effectRows}</tbody></table></div><div class="legend">${RISK_LEVELS.map(r=>`<span class="${r.css}">${r.name}</span>`).join('')}</div>${navButtons('Risicomatrix maken')}`;
+
+ document.querySelectorAll('.risk-select').forEach(s=>{
+   const paint=()=>s.className='risk-select '+riskById(s.value).css;
+   paint();
+   s.addEventListener('change',()=>{config.riskMatrix[Number(s.dataset.e)][Number(s.dataset.c)]=s.value;paint()});
+ });
+
+ document.querySelectorAll('.effect-info-btn').forEach(btn=>{
+   btn.addEventListener('click',()=>{
+     const e=btn.dataset.e;
+     const row=document.querySelector('.effect-reference-row[data-e="'+e+'"]');
+     const opening=row.classList.contains('hidden');
+     row.classList.toggle('hidden',!opening);
+     btn.setAttribute('aria-expanded',opening?'true':'false');
+     btn.textContent=opening?'Verbergen':'Toelichting';
+   });
+ });
+
+ const toggleAll=$('toggleAllEffectInfo');
+ toggleAll.addEventListener('click',()=>{
+   const rows=[...document.querySelectorAll('.effect-reference-row')];
+   const shouldOpen=rows.some(r=>r.classList.contains('hidden'));
+   rows.forEach(r=>r.classList.toggle('hidden',!shouldOpen));
+   document.querySelectorAll('.effect-info-btn').forEach(btn=>{
+     btn.setAttribute('aria-expanded',shouldOpen?'true':'false');
+     btn.textContent=shouldOpen?'Verbergen':'Toelichting';
+   });
+   toggleAll.textContent=shouldOpen?'Alle effectbeschrijvingen verbergen':'Alle effectbeschrijvingen tonen';
+ });
+
+ bindNav(()=>{
+   document.querySelectorAll('.risk-select').forEach(s=>config.riskMatrix[Number(s.dataset.e)][Number(s.dataset.c)]=s.value);
+   saveConfig();
+   showFinal();
+   return false;
+ });
 }
 function showFinal(){$('builderPanel').classList.add('hidden');$('stepper').classList.add('hidden');$('finalPanel').classList.remove('hidden');renderFinalMatrix();window.scrollTo({top:0,behavior:'smooth'})}
 function showBuilder(step=1){currentStep=step;$('finalPanel').classList.add('hidden');$('builderPanel').classList.remove('hidden');$('stepper').classList.remove('hidden');renderStep();window.scrollTo({top:0,behavior:'smooth'})}

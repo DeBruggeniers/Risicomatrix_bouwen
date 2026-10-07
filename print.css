@@ -171,16 +171,16 @@ body{
     box-shadow:none;
   }
   .print-header{
-    margin-bottom:2.5mm;
-    padding-bottom:1.5mm;
-    border-bottom-width:1.5px;
+    margin-bottom:1.2mm;
+    padding-bottom:.8mm;
+    border-bottom-width:1px;
   }
-  .print-header h1{font-size:16pt}
-  .print-header p{font-size:8pt;margin-top:1mm}
-  .print-meta{font-size:7pt}
+  .print-header h1{font-size:11.5pt;line-height:1}
+  .print-header p{font-size:5.8pt;line-height:1.05;margin-top:.4mm}
+  .print-meta{font-size:5.5pt}
   .matrix-layout{
     grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);
-    gap:2mm;
+    gap:1.5mm;
     align-items:start;
   }
   .criteria-table,.risk-table{
@@ -227,9 +227,9 @@ body{
     line-height:1.1;
   }
   .print-footer{
-    margin-top:1.5mm;
-    padding-top:1mm;
-    font-size:5.5pt;
+    margin-top:.8mm;
+    padding-top:.6mm;
+    font-size:4.8pt;
   }
 }
 @media(max-width:1100px){

@@ -149,28 +149,87 @@ body{
 .load-error{padding:30px;font-size:14px;color:#b42318}
 
 @page{
-  size:A3 landscape;
-  margin:8mm;
+  size:A4 landscape;
+  margin:5mm;
 }
 @media print{
   html,body{
+    width:100%;
+    height:auto;
+    margin:0;
+    padding:0;
     background:#fff;
     -webkit-print-color-adjust:exact!important;
     print-color-adjust:exact!important;
   }
   .screen-toolbar{display:none!important}
   #printSheet{
-    width:auto;
+    width:100%;
+    max-width:none;
     margin:0;
     padding:0;
     box-shadow:none;
   }
-  .print-header h1{font-size:18pt}
+  .print-header{
+    margin-bottom:2.5mm;
+    padding-bottom:1.5mm;
+    border-bottom-width:1.5px;
+  }
+  .print-header h1{font-size:13pt}
+  .print-header p{font-size:6.5pt;margin-top:1mm}
+  .print-meta{font-size:6pt}
   .matrix-layout{
-    grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);
+    grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);
+    gap:2mm;
+    align-items:start;
   }
   .criteria-table,.risk-table{
+    width:100%;
+    table-layout:fixed;
     break-inside:avoid;
+    page-break-inside:avoid;
+  }
+  .criteria-table th,.criteria-table td,
+  .risk-table th,.risk-table td{
+    padding:1.1mm 1.2mm;
+    border-width:.5px;
+  }
+  .criteria-table thead th,
+  .risk-table thead th{
+    font-size:5.1pt;
+    line-height:1.08;
+  }
+  .criteria-table td{
+    font-size:4.65pt;
+    line-height:1.12;
+  }
+  .criteria-table .effect-label{
+    width:17mm;
+    font-size:5pt;
+  }
+  .risk-table th{
+    font-size:4.8pt;
+    line-height:1.08;
+  }
+  .risk-table td{
+    min-height:0;
+    font-size:4.8pt;
+    line-height:1.08;
+    padding-left:.8mm;
+    padding-right:.8mm;
+  }
+  .chance-number{
+    font-size:5.5pt;
+    margin-bottom:.4mm;
+  }
+  .chance-desc{
+    font-size:4.2pt;
+    line-height:1.05;
+  }
+  .print-footer{
+    margin-top:1.5mm;
+    padding-top:1mm;
+    font-size:4.5pt;
   }
 }
 @media(max-width:1100px){

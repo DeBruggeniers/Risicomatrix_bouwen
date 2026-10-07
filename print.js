@@ -130,7 +130,7 @@ function syncMatrixRowHeights(){
   // A4-hoogte beter, maar nooit minder dan de hoogste tekstinhoud nodig heeft.
   const contentHeight=Math.max(...allRows.map(r=>r.getBoundingClientRect().height));
   const viewportHeight=window.innerHeight||794;
-  const targetHeight=Math.max(contentHeight, Math.min(74, Math.max(54, viewportHeight*0.075)));
+  const targetHeight=Math.max(contentHeight, Math.min(62, Math.max(46, viewportHeight*0.062)));
   allRows.forEach(r=>{
     r.style.height=targetHeight+'px';
     r.querySelectorAll('td,th').forEach(cell=>cell.style.height=targetHeight+'px');

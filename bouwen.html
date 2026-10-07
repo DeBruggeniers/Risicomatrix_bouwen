@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="nl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Risicomatrix beheren</title><link rel="stylesheet" href="styles.css?v=20261007-5"></head>
+<body><div class="wrap">
+<section class="hero"><h1>Risicomatrix beheren</h1><p>Doorloop de zes stappen om de risicomatrix op te bouwen of aan te passen. De vaste gebruikspagina verandert pas wanneer je een nieuwe configuratie publiceert.</p></section>
+<div class="stepper" id="stepper"></div>
+<section class="panel" id="builderPanel"><div id="step1" class="step-panel"></div><div id="step2" class="step-panel hidden"></div><div id="step3" class="step-panel hidden"></div><div id="step4" class="step-panel hidden"></div><div id="step5" class="step-panel hidden"></div><div id="step6" class="step-panel hidden"></div></section>
+<section class="panel hidden" id="finalPanel"><h2>Nieuwe risicomatrix gereed</h2><p class="hint">Controleer de matrix. Download daarna het publicatiebestand en vervang in GitHub alleen <strong>config.js</strong>. De URL en QR-code blijven hetzelfde.</p><div id="finalMatrix"></div><div class="toolbar"><button class="primary" id="publishBtn" type="button">Publicatiebestand downloaden</button><button class="secondary" id="editMatrixBtn" type="button">Matrix aanpassen</button><a class="secondary" style="padding:10px 15px;border-radius:10px;font-weight:700;text-decoration:none" href="index.html">Gebruikspagina openen</a></div><div class="notice">Na het vervangen van <strong>config.js</strong> in GitHub is de nieuwe matrix voor iedereen beschikbaar.</div></section>
+</div><script src="config.js?v=20261007-1"></script><script src="builder.js?v=20261007-1" defer></script></body></html>

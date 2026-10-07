@@ -126,9 +126,15 @@ function syncMatrixRowHeights(){
   allRows.forEach(r=>r.style.height='');
   if(!allRows.length) return;
 
-  // Eén uniforme rijhoogte voor alle effectklassen, gebaseerd op de hoogste rij.
-  const uniformHeight=Math.max(...allRows.map(r=>r.getBoundingClientRect().height));
-  allRows.forEach(r=>r.style.height=uniformHeight+'px');
+  // Eén uniforme rijhoogte voor alle effectklassen. Gebruik de beschikbare
+  // A4-hoogte beter, maar nooit minder dan de hoogste tekstinhoud nodig heeft.
+  const contentHeight=Math.max(...allRows.map(r=>r.getBoundingClientRect().height));
+  const viewportHeight=window.innerHeight||794;
+  const targetHeight=Math.max(contentHeight, Math.min(74, Math.max(54, viewportHeight*0.075)));
+  allRows.forEach(r=>{
+    r.style.height=targetHeight+'px';
+    r.querySelectorAll('td,th').forEach(cell=>cell.style.height=targetHeight+'px');
+  });
 }
 
 async function init(){

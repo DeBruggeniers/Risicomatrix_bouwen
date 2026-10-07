@@ -38,7 +38,20 @@
     </details>
   </section>
 </div>
-<script src="config.js?v=20261007-1"></script>
-<script src="app.js?v=20261007-4" defer></script>
+<script>
+(function(){
+  const configScript=document.createElement('script');
+  configScript.src='config.js?t='+Date.now();
+  configScript.onload=function(){
+    const appScript=document.createElement('script');
+    appScript.src='app.js?v=20261007-5';
+    document.body.appendChild(appScript);
+  };
+  configScript.onerror=function(){
+    document.body.innerHTML='<p style="padding:20px">De risicomatrix kon niet worden geladen. Vernieuw de pagina over enkele seconden.</p>';
+  };
+  document.body.appendChild(configScript);
+})();
+</script>
 </body>
 </html>

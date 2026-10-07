@@ -39,18 +39,32 @@
   </section>
 </div>
 <script>
-(function(){
-  const configScript=document.createElement('script');
-  configScript.src='https://raw.githubusercontent.com/DeBruggeniers/Risicomatrix_bouwen/main/config.js?t='+Date.now();
-  configScript.onload=function(){
+(async function(){
+  const workerUrl='https://risicomatrix-publisher.koen-f98.workers.dev/';
+  async function loadFromWorker(){
+    const res=await fetch(workerUrl+'?t='+Date.now(),{cache:'no-store'});
+    if(!res.ok) throw new Error('Worker GET niet beschikbaar');
+    const data=await res.json();
+    if(!data || !data.config) throw new Error('Geen configuratie ontvangen');
+    window.PUBLISHED_RISK_CONFIG=data.config;
+  }
+  function loadFallback(){
+    return new Promise((resolve,reject)=>{
+      const s=document.createElement('script');
+      s.src='https://raw.githubusercontent.com/DeBruggeniers/Risicomatrix_bouwen/main/config.js?t='+Date.now();
+      s.onload=resolve;
+      s.onerror=reject;
+      document.body.appendChild(s);
+    });
+  }
+  try{
+    try{await loadFromWorker()}catch(e){await loadFallback()}
     const appScript=document.createElement('script');
-    appScript.src='app.js?v=20261007-6';
+    appScript.src='app.js?v=20261007-7';
     document.body.appendChild(appScript);
-  };
-  configScript.onerror=function(){
+  }catch(e){
     document.body.innerHTML='<p style="padding:20px">De risicomatrix kon niet worden geladen. Vernieuw de pagina over enkele seconden.</p>';
-  };
-  document.body.appendChild(configScript);
+  }
 })();
 </script>
 </body>

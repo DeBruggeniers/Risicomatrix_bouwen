@@ -31,3 +31,14 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:
 .matrix td select.risk-high{background:var(--high);color:#311700}
 .matrix td select.risk-very-high{background:var(--very-high);color:#fff}
 .matrix td select.risk-select option{background:#fff;color:var(--text)}
+
+
+/* Stap 6: effectbeschrijvingen als referentie bij het bepalen van de risicohouding */
+.step6-tools{display:flex;justify-content:flex-end;margin:-4px 0 12px}
+.effect-head-wrap{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.effect-info-btn{padding:5px 8px;font-size:11px;background:#fff;color:var(--blue);border:1px solid #cbd5e1;white-space:nowrap}
+.effect-reference-row td{background:#f8fafc!important;padding:12px 14px!important;text-align:left!important}
+.effect-reference-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.effect-reference-item{background:#fff;border:1px solid #dfe5ec;border-radius:10px;padding:10px 12px;min-height:72px}
+.effect-reference-item strong{display:block;color:var(--blue);font-size:12px;margin-bottom:5px}
+.effect-reference-item span{display:block;color:#475467;font-size:12px;line-height:1.4}

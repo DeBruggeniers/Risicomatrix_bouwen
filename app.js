@@ -81,16 +81,26 @@ function renderStep1(){
   bindNav(()=>{const names=[...document.querySelectorAll('.value-name')].map(x=>x.value.trim());if(names.some(x=>!x)){alert('Vul voor iedere waarde een naam in.');return false}if(new Set(names.map(x=>x.toLowerCase())).size!==names.length){alert('Gebruik iedere waarde maar één keer.');return false}const old=config.effectDescriptions;config.values=names;config.effectDescriptions={};names.forEach(v=>config.effectDescriptions[v]=old[v]||Array(config.effectCount).fill(''));ensureConfigShape();return true});
 }
 function renderStep2(){
-  $('step2').innerHTML=`<h2>Stap 2. Aantal effectklassen</h2><p class="hint">Kies hoeveel effectklassen je wilt gebruiken. De klassen worden aangeduid met A t/m G.</p><div class="field small"><label>Aantal effectklassen</label><select id="effectCount">${[3,4,5,6,7].map(n=>`<option value="${n}" ${config.effectCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="notice">Bij ${config.effectCount} klassen gebruik je: ${EFFECT_CODES.slice(0,config.effectCount).join(', ')}.</div>${navButtons()}`;
-  $('effectCount').addEventListener('change',e=>{config.effectCount=Number(e.target.value);ensureConfigShape();renderStep2()});bindNav(()=>{ensureConfigShape();return true});
+  $('step2').innerHTML=`<h2>Stap 2. Aantal effectklassen</h2><p class="hint">Kies hoeveel effectklassen je wilt gebruiken. De klassen worden aangeduid met A t/m G.</p><div class="field small"><label>Aantal effectklassen</label><select id="effectCount">${[3,4,5,6,7].map(n=>`<option value="${n}" ${config.effectCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="notice" id="effectCountNotice">Bij ${config.effectCount} klassen gebruik je: ${EFFECT_CODES.slice(0,config.effectCount).join(', ')}.</div>${navButtons()}`;
+  $('effectCount').addEventListener('change',e=>{
+    config.effectCount=Number(e.target.value);
+    ensureConfigShape();
+    $('effectCountNotice').textContent=`Bij ${config.effectCount} klassen gebruik je: ${EFFECT_CODES.slice(0,config.effectCount).join(', ')}.`;
+  });
+  bindNav(()=>{ensureConfigShape();return true});
 }
 function renderStep3(){
   $('step3').innerHTML=`<h2>Stap 3. Effectbeschrijvingen per waarde</h2><p class="hint">Beschrijf per organisatiewaarde wat iedere effectklasse betekent. Deze teksten worden later bij de risicobeoordeling getoond.</p>${config.values.map(v=>`<h3>${escapeHtml(v)}</h3><div class="class-list">${Array.from({length:config.effectCount},(_,i)=>`<div class="input-card"><strong>Effect ${EFFECT_CODES[i]}</strong><div class="field"><label>Beschrijving</label><textarea class="effect-desc" data-value="${escapeHtml(v)}" data-i="${i}" placeholder="Beschrijf het effect voor ${escapeHtml(v)} bij klasse ${EFFECT_CODES[i]}">${escapeHtml(config.effectDescriptions[v]?.[i]||'')}</textarea></div></div>`).join('')}</div>`).join('')}${navButtons()}`;
   bindNav(()=>{document.querySelectorAll('.effect-desc').forEach(x=>{config.effectDescriptions[x.dataset.value][Number(x.dataset.i)]=x.value.trim()});return true});
 }
 function renderStep4(){
-  $('step4').innerHTML=`<h2>Stap 4. Aantal kansklassen</h2><p class="hint">Kies hoeveel kansklassen je wilt gebruiken. De klassen worden genummerd van 1 t/m 7.</p><div class="field small"><label>Aantal kansklassen</label><select id="chanceCount">${[3,4,5,6,7].map(n=>`<option value="${n}" ${config.chanceCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="notice">Bij ${config.chanceCount} klassen gebruik je: ${CHANCE_CODES.slice(0,config.chanceCount).join(', ')}.</div>${navButtons()}`;
-  $('chanceCount').addEventListener('change',e=>{config.chanceCount=Number(e.target.value);ensureConfigShape();renderStep4()});bindNav(()=>{ensureConfigShape();return true});
+  $('step4').innerHTML=`<h2>Stap 4. Aantal kansklassen</h2><p class="hint">Kies hoeveel kansklassen je wilt gebruiken. De klassen worden genummerd van 1 t/m 7.</p><div class="field small"><label>Aantal kansklassen</label><select id="chanceCount">${[3,4,5,6,7].map(n=>`<option value="${n}" ${config.chanceCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="notice" id="chanceCountNotice">Bij ${config.chanceCount} klassen gebruik je: ${CHANCE_CODES.slice(0,config.chanceCount).join(', ')}.</div>${navButtons()}`;
+  $('chanceCount').addEventListener('change',e=>{
+    config.chanceCount=Number(e.target.value);
+    ensureConfigShape();
+    $('chanceCountNotice').textContent=`Bij ${config.chanceCount} klassen gebruik je: ${CHANCE_CODES.slice(0,config.chanceCount).join(', ')}.`;
+  });
+  bindNav(()=>{ensureConfigShape();return true});
 }
 function renderStep5(){
   $('step5').innerHTML=`<h2>Stap 5. Kansklassen beschrijven</h2><p class="hint">Beschrijf wat iedere kansklasse betekent, bijvoorbeeld met een frequentie of periode.</p><div class="class-list">${Array.from({length:config.chanceCount},(_,i)=>`<div class="input-card"><strong>Kansklasse ${i+1}</strong><div class="field"><label>Beschrijving</label><textarea class="chance-desc" data-i="${i}" placeholder="Bijvoorbeeld: minder dan 1 keer per 30 jaar">${escapeHtml(config.chanceDescriptions[i]||'')}</textarea></div></div>`).join('')}</div>${navButtons()}`;

@@ -180,7 +180,7 @@ body{
   .print-meta{font-size:5.5pt}
   .matrix-layout{
     grid-template-columns:minmax(0,1.62fr) minmax(0,1fr);
-    gap:1.5mm;
+    gap:0;
     align-items:start;
   }
   .criteria-table,.risk-table{
@@ -211,6 +211,9 @@ body{
     font-size:6.2pt;
     line-height:1.12;
   }
+  .risk-area{margin-left:-1px}
+  .criteria-table{border-right:0}
+  .risk-table{border-left:0}
   .risk-table td{
     min-height:0;
     font-size:6.8pt;

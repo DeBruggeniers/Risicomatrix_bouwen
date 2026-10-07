@@ -28,14 +28,14 @@ window.PUBLISHED_RISK_CONFIG = {
   "riskMatrix": [
     [
       "very-high",
-      "very-low",
+      "very-high",
       "low",
       "medium",
       "high"
     ],
     [
-      "very-low",
-      "low",
+      "very-high",
+      "medium",
       "medium",
       "high",
       "very-high"
@@ -45,8 +45,8 @@ window.PUBLISHED_RISK_CONFIG = {
       "medium",
       "high",
       "very-high",
-      "very-high"
+      "low"
     ]
   ],
-  "_publicationId": "pub-1791392653756-nhohrd"
+  "_publicationId": "pub-1791392806498-hw3go0"
 };

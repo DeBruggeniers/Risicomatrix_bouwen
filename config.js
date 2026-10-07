@@ -29,12 +29,11 @@ window.PUBLISHED_RISK_CONFIG = {
       "Ernstig\nZeer groot negatief effect, ernstige gevolgen"
     ]
   },
-  "chanceCount": 5,
+  "chanceCount": 4,
   "chanceDescriptions": [
-    "Zeer onwaarschijnlijk\n< 1× per 30 jaar",
-    "Onwaarschijnlijk\n1× per 10–30 jaar",
-    "Mogelijk\n1× per 2–10 jaar",
-    "Waarschijnlijk\n1× per 1–2 jaar",
+    "Zeer onwaarschijnlijk\n< 1× per 20 jaar",
+    "Onwaarschijnlijk\n1× per 5–20 jaar",
+    "Waarschijnlijk\n1× per 1–5 jaar",
     "Zeer waarschijnlijk\n≥ 1× per jaar"
   ],
   "riskMatrix": [
@@ -42,39 +41,34 @@ window.PUBLISHED_RISK_CONFIG = {
       "very-low",
       "very-low",
       "low",
-      "low",
       "medium"
     ],
     [
       "very-low",
       "low",
-      "low",
       "medium",
-      "high"
-    ],
-    [
-      "low",
-      "low",
-      "medium",
-      "high",
-      "high"
+      "medium"
     ],
     [
       "low",
       "medium",
-      "high",
+      "medium",
+      "high"
+    ],
+    [
+      "medium",
+      "medium",
       "high",
       "very-high"
     ],
     [
       "medium",
-      "high",
       "high",
       "very-high",
       "very-high"
     ]
   ],
   "effectPresetCount": 5,
-  "chancePresetCount": 5,
-  "_publicationId": "pub-1791394097154-qp0zi9"
+  "chancePresetCount": 4,
+  "_publicationId": "pub-1791394236610-3wkivy"
 };

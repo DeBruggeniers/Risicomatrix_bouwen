@@ -6,7 +6,7 @@ window.PUBLISHED_RISK_CONFIG = {
     "Veiligheid",
     "Omgeving",
     "Imago",
-    "Financieel-economisch"
+    "Financieel"
   ],
   "effectCount": 6,
   "effectDescriptions": {
@@ -50,13 +50,13 @@ window.PUBLISHED_RISK_CONFIG = {
       "Landelijk negatief in de pers",
       "Internationaal negatief in de pers"
     ],
-    "Financieel-economisch": [
-      "< €1.000",
-      "> €1.000",
-      "> €10.000",
-      "> €100.000",
-      "> €1 mln",
-      "> €10 mln"
+    "Financieel": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
     ]
   },
   "chanceCount": 6,
@@ -120,5 +120,5 @@ window.PUBLISHED_RISK_CONFIG = {
   ],
   "effectPresetCount": 6,
   "chancePresetCount": 6,
-  "_publicationId": "pub-1791394949736-e755ce"
+  "_publicationId": "pub-1791395342723-ci73jd"
 };

@@ -41,10 +41,10 @@
 <script>
 (function(){
   const configScript=document.createElement('script');
-  configScript.src='config.js?t='+Date.now();
+  configScript.src='https://raw.githubusercontent.com/DeBruggeniers/Risicomatrix_bouwen/main/config.js?t='+Date.now();
   configScript.onload=function(){
     const appScript=document.createElement('script');
-    appScript.src='app.js?v=20261007-5';
+    appScript.src='app.js?v=20261007-6';
     document.body.appendChild(appScript);
   };
   configScript.onerror=function(){

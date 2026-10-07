@@ -1,68 +1,48 @@
 window.PUBLISHED_RISK_CONFIG = {
-  "valueCount": 4,
+  "valueCount": 3,
   "values": [
     "Veiligheid",
     "Leefbaarheid",
-    "Bereikbaarheid",
-    "ssss"
+    "Bereikbaarheid"
   ],
-  "effectCount": 4,
+  "effectCount": 3,
   "effectDescriptions": {
     "Veiligheid": [
       "Geen letsel",
       "Licht letsel",
-      "Letsel met verzuim",
-      "gggg"
+      "Letsel met verzuim"
     ],
     "Leefbaarheid": [
       "Geen merkbare hinder",
       "Beperkte tijdelijke hinder",
-      "Merkbare hinder",
-      "aaaa"
+      "Merkbare hinder"
     ],
     "Bereikbaarheid": [
       "Geen noemenswaardige hinder",
       "Korte lokale hinder",
-      "Merkbare vertraging",
-      "bbbb"
-    ],
-    "ssss": [
-      "bdfbfd",
-      "fbdfb",
-      "bfbf",
-      "bdfb"
+      "Merkbare vertraging"
     ]
   },
-  "chanceCount": 4,
+  "chanceCount": 3,
   "chanceDescriptions": [
     "Zeer onwaarschijnlijk",
     "Onwaarschijnlijk",
-    "Mogelijk",
-    "Waarschijnlijk"
+    "Mogelijk"
   ],
   "riskMatrix": [
     [
-      "very-low",
       "very-low",
       "low",
       "medium"
     ],
     [
-      "very-low",
       "low",
       "medium",
       "high"
     ],
     [
-      "low",
       "medium",
       "high",
-      "very-high"
-    ],
-    [
-      "medium",
-      "high",
-      "very-high",
       "very-high"
     ]
   ]

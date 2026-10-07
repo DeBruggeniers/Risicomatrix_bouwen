@@ -71,8 +71,26 @@ function navButtons(nextText='Volgende'){
   return `<div class="actions"><div>${currentStep>1?'<button class="secondary" type="button" id="prevBtn">Vorige</button>':''}</div><div class="actions-right"><button class="primary" type="button" id="nextBtn">${nextText}</button></div></div>`;
 }
 function bindNav(onNext){
-  $('prevBtn')?.addEventListener('click',()=>{currentStep--;renderStep();window.scrollTo({top:0,behavior:'smooth'})});
-  $('nextBtn')?.addEventListener('click',()=>{if(onNext()!==false){saveConfig();if(currentStep<6){currentStep++;renderStep();window.scrollTo({top:0,behavior:'smooth'})}}});
+  const activePanel = $('step' + currentStep);
+  const prevBtn = activePanel?.querySelector('#prevBtn');
+  const nextBtn = activePanel?.querySelector('#nextBtn');
+
+  prevBtn?.addEventListener('click',()=>{
+    currentStep--;
+    renderStep();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  nextBtn?.addEventListener('click',()=>{
+    if(onNext()!==false){
+      saveConfig();
+      if(currentStep<6){
+        currentStep++;
+        renderStep();
+        window.scrollTo({top:0,behavior:'smooth'});
+      }
+    }
+  });
 }
 function renderStep1(){
   $('step1').innerHTML=`<h2>Stap 1. Organisatiewaarden bepalen</h2><p class="hint">Kies hoeveel waarden je in de risicomatrix wilt opnemen en geef iedere waarde een naam.</p><div class="row"><div class="field small"><label>Aantal waarden</label><select id="valueCount">${Array.from({length:10},(_,i)=>`<option value="${i+1}" ${config.valueCount===i+1?'selected':''}>${i+1}</option>`).join('')}</select></div></div><div class="value-list" id="valueInputs"></div>${navButtons()}`;

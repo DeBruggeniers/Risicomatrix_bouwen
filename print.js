@@ -104,21 +104,39 @@ function renderRiskMatrix(config){
   `;
 }
 
-function renderChanceTable(config){
-  document.getElementById('chanceTable').innerHTML=`
-    <table class="chance-table">
-      <thead>
-        <tr>
-          ${Array.from({length:config.chanceCount},(_,i)=>`<th>Kansklasse ${i+1}</th>`).join('')}
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          ${Array.from({length:config.chanceCount},(_,i)=>`<td>${formatMultiline(config.chanceDescriptions?.[i]||'')}</td>`).join('')}
-        </tr>
-      </tbody>
-    </table>
-  `;
+function syncMatrixRowHeights(){
+  const criteriaTable=document.querySelector('.criteria-table');
+  const riskTable=document.querySelector('.risk-table');
+  if(!criteriaTable||!riskTable) return;
+
+  const criteriaHead=criteriaTable.querySelector('thead tr');
+  const riskHead=riskTable.querySelector('thead tr');
+  if(criteriaHead&&riskHead){
+    criteriaHead.style.height='';
+    riskHead.style.height='';
+    const headerHeight=Math.max(
+      criteriaHead.getBoundingClientRect().height,
+      riskHead.getBoundingClientRect().height
+    );
+    criteriaHead.style.height=headerHeight+'px';
+    riskHead.style.height=headerHeight+'px';
+  }
+
+  const leftRows=[...criteriaTable.querySelectorAll('tbody tr')];
+  const rightRows=[...riskTable.querySelectorAll('tbody tr')];
+
+  leftRows.forEach(r=>r.style.height='');
+  rightRows.forEach(r=>r.style.height='');
+
+  const count=Math.min(leftRows.length,rightRows.length);
+  for(let i=0;i<count;i++){
+    const h=Math.max(
+      leftRows[i].getBoundingClientRect().height,
+      rightRows[i].getBoundingClientRect().height
+    );
+    leftRows[i].style.height=h+'px';
+    rightRows[i].style.height=h+'px';
+  }
 }
 
 async function init(){
@@ -126,12 +144,17 @@ async function init(){
     const config=await loadConfig();
     renderCriteria(config);
     renderRiskMatrix(config);
-    renderChanceTable(config);
     document.getElementById('printMeta').textContent=new Date().toLocaleDateString('nl-NL');
+    requestAnimationFrame(()=>requestAnimationFrame(syncMatrixRowHeights));
   }catch(err){
     document.getElementById('printSheet').innerHTML='<p class="load-error">'+esc(err.message)+'</p>';
   }
 }
 
-document.getElementById('printBtn').addEventListener('click',()=>window.print());
+document.getElementById('printBtn').addEventListener('click',()=>{
+  syncMatrixRowHeights();
+  window.print();
+});
+window.addEventListener('resize',()=>requestAnimationFrame(syncMatrixRowHeights));
+window.addEventListener('beforeprint',syncMatrixRowHeights);
 init();

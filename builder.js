@@ -169,6 +169,31 @@ function downloadPublishedConfig(){
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
+async function publishConfig(){
+  const status=$('publishStatus');
+  const endpoint=window.PUBLISH_API_URL||'';
+  const key=$('publishKey').value.trim();
+  status.classList.remove('hidden');
+  if(!endpoint){status.textContent='De publicatie-API is nog niet gekoppeld. Vul eerst de Worker-URL in publish-config.js in.';return}
+  if(!key){status.textContent='Vul het publicatiewachtwoord in.';return}
+  $('publishBtn').disabled=true;
+  status.textContent='Publiceren...';
+  try{
+    const res=await fetch(endpoint,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Admin-Key':key},
+      body:JSON.stringify({config})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||('Publiceren mislukt ('+res.status+').'));
+    status.innerHTML='<strong>Gepubliceerd.</strong> GitHub Pages verwerkt de wijziging nu. De gebruikspagina toont de nieuwe matrix meestal binnen ongeveer 1 minuut.';
+  }catch(err){
+    status.textContent=err.message||'Publiceren mislukt.';
+  }finally{
+    $('publishBtn').disabled=false;
+  }
+}
 loadDraft();renderStep();
 $('editMatrixBtn').addEventListener('click',()=>showBuilder(1));
-$('publishBtn').addEventListener('click',downloadPublishedConfig);
+$('publishBtn').addEventListener('click',publishConfig);
+$('downloadBtn').addEventListener('click',downloadPublishedConfig);

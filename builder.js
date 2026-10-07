@@ -172,22 +172,21 @@ function downloadPublishedConfig(){
 function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
 
 async function waitUntilLive(publicationId,status){
-  const rawUrl='https://raw.githubusercontent.com/DeBruggeniers/Risicomatrix_bouwen/main/config.js';
   const started=Date.now();
   const timeoutMs=60*1000;
+  const endpoint=(window.PUBLISH_API_URL||'').replace(/\/$/,'')+'/';
 
   while(Date.now()-started<timeoutMs){
     const seconds=Math.round((Date.now()-started)/1000);
-    status.innerHTML='<strong>GitHub is bijgewerkt.</strong> Controleren of de nieuwe matrix beschikbaar is... ('+seconds+' sec)';
+    status.innerHTML='<strong>Publicatie ontvangen.</strong> Controleren of de nieuwe matrix beschikbaar is... ('+seconds+' sec)';
     try{
-      const checkUrl=rawUrl+'?t='+Date.now();
-      const response=await fetch(checkUrl,{cache:'no-store'});
+      const response=await fetch(endpoint+'?t='+Date.now(),{cache:'no-store'});
       if(response.ok){
-        const text=await response.text();
-        if(text.includes(publicationId)) return true;
+        const data=await response.json();
+        if(data?.config?._publicationId===publicationId) return true;
       }
     }catch(e){}
-    await wait(2000);
+    await wait(1000);
   }
   return false;
 }
@@ -208,7 +207,7 @@ async function publishConfig(){
   }
 
   $('publishBtn').disabled=true;
-  status.textContent='Risicomatrix naar GitHub sturen...';
+  status.textContent='Risicomatrix publiceren...';
 
   const publicationId='pub-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
   const publishedConfig={...config,_publicationId:publicationId};

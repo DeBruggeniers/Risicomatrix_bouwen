@@ -1,3 +1,2 @@
-// Vul hier na het aanmaken van de Cloudflare Worker éénmalig de Worker-URL in.
-// Voorbeeld: https://risicomatrix-publisher.jouw-account.workers.dev
-window.PUBLISH_API_URL = "";
+// Cloudflare Worker endpoint voor automatisch publiceren.
+window.PUBLISH_API_URL = "https://risicomatrix-publisher.koen-f98.workers.dev/";

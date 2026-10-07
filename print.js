@@ -98,9 +98,6 @@ function renderRiskMatrix(config){
       </thead>
       <tbody>${rows}</tbody>
     </table>
-    <div class="legend">
-      ${RISK_LEVELS.map(r=>`<span class="${r.css}">${r.name}</span>`).join('')}
-    </div>
   `;
 }
 
@@ -146,6 +143,8 @@ async function init(){
     renderRiskMatrix(config);
     document.getElementById('printMeta').textContent=new Date().toLocaleDateString('nl-NL');
     requestAnimationFrame(()=>requestAnimationFrame(syncMatrixRowHeights));
+    setTimeout(syncMatrixRowHeights,150);
+    setTimeout(syncMatrixRowHeights,500);
   }catch(err){
     document.getElementById('printSheet').innerHTML='<p class="load-error">'+esc(err.message)+'</p>';
   }

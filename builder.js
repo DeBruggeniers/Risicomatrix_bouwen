@@ -169,24 +169,74 @@ function downloadPublishedConfig(){
   a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
+function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+
+async function waitUntilLive(publicationId,status){
+  const configUrl=new URL('config.js',window.location.href);
+  const started=Date.now();
+  const timeoutMs=5*60*1000;
+  let attempt=0;
+
+  while(Date.now()-started<timeoutMs){
+    attempt++;
+    const seconds=Math.round((Date.now()-started)/1000);
+    status.innerHTML='<strong>GitHub is bijgewerkt.</strong> Wachten tot GitHub Pages de nieuwe matrix publiceert... ('+seconds+' sec)';
+    try{
+      const checkUrl=new URL(configUrl);
+      checkUrl.searchParams.set('t',Date.now().toString());
+      const response=await fetch(checkUrl.toString(),{cache:'no-store'});
+      if(response.ok){
+        const text=await response.text();
+        if(text.includes(publicationId)){
+          return true;
+        }
+      }
+    }catch(e){}
+    await wait(5000);
+  }
+  return false;
+}
+
 async function publishConfig(){
   const status=$('publishStatus');
   const endpoint=window.PUBLISH_API_URL||'';
   const key=$('publishKey').value.trim();
   status.classList.remove('hidden');
-  if(!endpoint){status.textContent='De publicatie-API is nog niet gekoppeld. Vul eerst de Worker-URL in publish-config.js in.';return}
-  if(!key){status.textContent='Vul het publicatiewachtwoord in.';return}
+
+  if(!endpoint){
+    status.textContent='De publicatie-API is nog niet gekoppeld. Vul eerst de Worker-URL in publish-config.js in.';
+    return;
+  }
+  if(!key){
+    status.textContent='Vul het publicatiewachtwoord in.';
+    return;
+  }
+
   $('publishBtn').disabled=true;
-  status.textContent='Publiceren...';
+  status.textContent='Risicomatrix naar GitHub sturen...';
+
+  const publicationId='pub-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
+  const publishedConfig={...config,_publicationId:publicationId};
+
   try{
     const res=await fetch(endpoint,{
       method:'POST',
       headers:{'Content-Type':'application/json','X-Admin-Key':key},
-      body:JSON.stringify({config})
+      body:JSON.stringify({config:publishedConfig})
     });
+
     const data=await res.json().catch(()=>({}));
     if(!res.ok) throw new Error(data.error||('Publiceren mislukt ('+res.status+').'));
-    status.innerHTML='<strong>Gepubliceerd.</strong> GitHub Pages verwerkt de wijziging nu. De gebruikspagina toont de nieuwe matrix meestal binnen ongeveer 1 minuut.';
+
+    const live=await waitUntilLive(publicationId,status);
+
+    if(live){
+      const useUrl=new URL('index.html',window.location.href);
+      useUrl.searchParams.set('t',Date.now().toString());
+      status.innerHTML='<strong>✓ Nieuwe risicomatrix staat online.</strong> De gebruikspagina en QR-code gebruiken nu de nieuwe matrix. <a href="'+useUrl.toString()+'">Gebruikspagina openen</a>';
+    }else{
+      status.innerHTML='<strong>GitHub is bijgewerkt, maar GitHub Pages is na 5 minuten nog niet bevestigd.</strong> De publicatie kan alsnog doorlopen. Controleer de gebruikspagina over enkele minuten.';
+    }
   }catch(err){
     status.textContent=err.message||'Publiceren mislukt.';
   }finally{

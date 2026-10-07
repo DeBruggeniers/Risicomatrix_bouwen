@@ -80,7 +80,6 @@ function renderRiskMatrix(config){
 
   const rows=effectIndexes.map(e=>`
     <tr>
-      <th>${esc(effectLabel(config,e))}</th>
       ${Array.from({length:config.chanceCount},(_,c)=>{
         const r=riskById(config.riskMatrix[e][c]);
         return `<td class="${r.css}">${esc(r.name)}</td>`;
@@ -92,7 +91,6 @@ function renderRiskMatrix(config){
     <table class="risk-table">
       <thead>
         <tr>
-          <th>Effect / kans</th>
           ${chanceHead}
         </tr>
       </thead>

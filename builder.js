@@ -160,7 +160,15 @@ function renderStep6(){
 function showFinal(){$('builderPanel').classList.add('hidden');$('stepper').classList.add('hidden');$('finalPanel').classList.remove('hidden');renderFinalMatrix();window.scrollTo({top:0,behavior:'smooth'})}
 function showBuilder(step=1){currentStep=step;$('finalPanel').classList.add('hidden');$('builderPanel').classList.remove('hidden');$('stepper').classList.remove('hidden');renderStep();window.scrollTo({top:0,behavior:'smooth'})}
 function renderFinalMatrix(){$('finalMatrix').innerHTML=`<div class="matrix-scroll"><table class="matrix"><thead><tr><th class="effect-head">Effect / Kans</th>${Array.from({length:config.chanceCount},(_,c)=>`<th>${c+1}<br><span style="font-weight:400">${esc(config.chanceDescriptions[c]||'')}</span></th>`).join('')}</tr></thead><tbody>${Array.from({length:config.effectCount},(_,e)=>`<tr><th class="effect-head">${EFFECT_CODES[e]}</th>${Array.from({length:config.chanceCount},(_,c)=>{const r=riskById(config.riskMatrix[e][c]);return `<td class="${r.css}"><strong>${r.name}</strong></td>`}).join('')}</tr>`).join('')}</tbody></table></div><div class="legend">${RISK_LEVELS.map(r=>`<span class="${r.css}">${r.name}</span>`).join('')}</div>`}
-function downloadPublishedConfig(){const content='window.PUBLISHED_RISK_CONFIG = '+JSON.stringify(config,null,2)+';\n';const blob=new Blob([content],{type:'text/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function downloadPublishedConfig(){
+  const content = 'window.PUBLISHED_RISK_CONFIG = ' + JSON.stringify(config, null, 2) + ';\\n';
+  const blob = new Blob([content], {type:'text/javascript'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'config.js';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
 loadDraft();renderStep();
 $('editMatrixBtn').addEventListener('click',()=>showBuilder(1));
 $('publishBtn').addEventListener('click',downloadPublishedConfig);

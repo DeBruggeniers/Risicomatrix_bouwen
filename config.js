@@ -1,35 +1,41 @@
 window.PUBLISHED_RISK_CONFIG = {
-  "valueCount": 2,
+  "valueCount": 3,
   "values": [
     "Veiligheid",
-    "Leefbaarheid"
+    "Leefbaarheid",
+    "Bereikbaarheid"
   ],
-  "effectCount": 6,
+  "effectCount": 5,
   "effectDescriptions": {
     "Veiligheid": [
       "Verwaarloosbaar\nGeen of nauwelijks merkbaar negatief effect",
       "Klein\nLicht negatief effect, beperkte gevolgen",
       "Matig\nDuidelijk negatief effect, merkbare gevolgen",
       "Behoorlijk\nGroot negatief effect, serieuze gevolgen",
-      "Ernstig\nZeer groot negatief effect, ernstige gevolgen",
-      "Zeer ernstig\nZeer ernstige of mogelijk onomkeerbare gevolgen"
+      "Ernstig\nZeer groot negatief effect, ernstige gevolgen"
     ],
     "Leefbaarheid": [
       "Verwaarloosbaar\nGeen of nauwelijks merkbaar negatief effect",
       "Klein\nLicht negatief effect, beperkte gevolgen",
       "Matig\nDuidelijk negatief effect, merkbare gevolgen",
       "Behoorlijk\nGroot negatief effect, serieuze gevolgen",
-      "Ernstig\nZeer groot negatief effect, ernstige gevolgen",
-      "Zeer ernstig\nZeer ernstige of mogelijk onomkeerbare gevolgen"
+      "Ernstig\nZeer groot negatief effect, ernstige gevolgen"
+    ],
+    "Bereikbaarheid": [
+      "Verwaarloosbaar\nGeen of nauwelijks merkbaar negatief effect",
+      "Klein\nLicht negatief effect, beperkte gevolgen",
+      "Matig\nDuidelijk negatief effect, merkbare gevolgen",
+      "Behoorlijk\nGroot negatief effect, serieuze gevolgen",
+      "Ernstig\nZeer groot negatief effect, ernstige gevolgen"
     ]
   },
   "chanceCount": 5,
   "chanceDescriptions": [
-    "Zeeeeeeeeeeeeeeeeeeeer onwaarschijnlijk",
-    "Onwaarschijnlijk",
-    "Mogelijk",
-    "ssssssssssssss",
-    "151215"
+    "Zeer onwaarschijnlijk\n< 1× per 30 jaar",
+    "Onwaarschijnlijk\n1× per 10–30 jaar",
+    "Mogelijk\n1× per 2–10 jaar",
+    "Waarschijnlijk\n1× per 1–2 jaar",
+    "Zeer waarschijnlijk\n≥ 1× per jaar"
   ],
   "riskMatrix": [
     [
@@ -40,28 +46,21 @@ window.PUBLISHED_RISK_CONFIG = {
       "medium"
     ],
     [
+      "very-low",
       "low",
       "low",
-      "low",
-      "medium",
-      "medium"
-    ],
-    [
-      "low",
-      "low",
-      "medium",
       "medium",
       "high"
     ],
     [
       "low",
-      "medium",
+      "low",
       "medium",
       "high",
       "high"
     ],
     [
-      "medium",
+      "low",
       "medium",
       "high",
       "high",
@@ -75,6 +74,7 @@ window.PUBLISHED_RISK_CONFIG = {
       "very-high"
     ]
   ],
-  "effectPresetCount": 6,
-  "_publicationId": "pub-1791393573244-3zqsvm"
+  "effectPresetCount": 5,
+  "chancePresetCount": 5,
+  "_publicationId": "pub-1791394097154-qp0zi9"
 };

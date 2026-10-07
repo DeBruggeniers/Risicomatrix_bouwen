@@ -4,17 +4,23 @@ window.PUBLISHED_RISK_CONFIG = {
     "Veiligheid",
     "Leefbaarheid"
   ],
-  "effectCount": 3,
+  "effectCount": 6,
   "effectDescriptions": {
     "Veiligheid": [
-      "Geen letsel",
-      "Licht letsel",
-      "Letsel met verzuim"
+      "Verwaarloosbaar\nGeen of nauwelijks merkbaar negatief effect",
+      "Klein\nLicht negatief effect, beperkte gevolgen",
+      "Matig\nDuidelijk negatief effect, merkbare gevolgen",
+      "Behoorlijk\nGroot negatief effect, serieuze gevolgen",
+      "Ernstig\nZeer groot negatief effect, ernstige gevolgen",
+      "Zeer ernstig\nZeer ernstige of mogelijk onomkeerbare gevolgen"
     ],
     "Leefbaarheid": [
-      "Geen merkbare hinder",
-      "Beperkte tijdelijke hinder",
-      "Merkbare hinder"
+      "Verwaarloosbaar\nGeen of nauwelijks merkbaar negatief effect",
+      "Klein\nLicht negatief effect, beperkte gevolgen",
+      "Matig\nDuidelijk negatief effect, merkbare gevolgen",
+      "Behoorlijk\nGroot negatief effect, serieuze gevolgen",
+      "Ernstig\nZeer groot negatief effect, ernstige gevolgen",
+      "Zeer ernstig\nZeer ernstige of mogelijk onomkeerbare gevolgen"
     ]
   },
   "chanceCount": 5,
@@ -23,30 +29,52 @@ window.PUBLISHED_RISK_CONFIG = {
     "Onwaarschijnlijk",
     "Mogelijk",
     "ssssssssssssss",
-    "22222222222222"
+    "151215"
   ],
   "riskMatrix": [
     [
-      "very-high",
-      "very-high",
+      "very-low",
+      "very-low",
       "low",
+      "low",
+      "medium"
+    ],
+    [
+      "low",
+      "low",
+      "low",
+      "medium",
+      "medium"
+    ],
+    [
+      "low",
+      "low",
+      "medium",
       "medium",
       "high"
     ],
     [
-      "very-high",
+      "low",
       "medium",
       "medium",
+      "high",
+      "high"
+    ],
+    [
+      "medium",
+      "medium",
+      "high",
       "high",
       "very-high"
     ],
     [
-      "low",
       "medium",
       "high",
+      "high",
       "very-high",
-      "low"
+      "very-high"
     ]
   ],
-  "_publicationId": "pub-1791392806498-hw3go0"
+  "effectPresetCount": 6,
+  "_publicationId": "pub-1791393573244-3zqsvm"
 };

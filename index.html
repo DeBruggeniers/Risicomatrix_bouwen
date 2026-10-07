@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risicomatrix maken en toepassen</title>
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Risicomatrix maken en toepassen</h1>
+    <p>Stel eerst de organisatiewaarden, effectklassen, kansklassen en risicohouding vast. Daarna wordt automatisch een bruikbare risicomatrix opgebouwd waarmee risico's kunnen worden beoordeeld.</p>
+  </section>
+
+  <div class="stepper" id="stepper"></div>
+
+  <section class="panel" id="builderPanel">
+    <div id="step1" class="step-panel"></div>
+    <div id="step2" class="step-panel hidden"></div>
+    <div id="step3" class="step-panel hidden"></div>
+    <div id="step4" class="step-panel hidden"></div>
+    <div id="step5" class="step-panel hidden"></div>
+    <div id="step6" class="step-panel hidden"></div>
+  </section>
+
+  <section class="panel hidden" id="finalPanel">
+    <h2>Risicomatrix</h2>
+    <p class="hint">De matrix hieronder is opgebouwd uit de keuzes uit stap 1 t/m 6. Daarna kun je deze direct gebruiken voor een risicobeoordeling.</p>
+    <div id="finalMatrix"></div>
+    <div class="toolbar">
+      <button class="secondary" id="editMatrixBtn" type="button">Matrix aanpassen</button>
+      <button class="secondary" id="exportBtn" type="button">Configuratie exporteren</button>
+      <label class="secondary" style="padding:10px 15px;border-radius:10px;font-weight:700;cursor:pointer" for="importInput">Configuratie importeren</label>
+      <input class="file-input" type="file" accept="application/json" id="importInput">
+      <button class="danger" id="clearConfigBtn" type="button">Alles wissen</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Risicobeoordeling uitvoeren</h2>
+    <p class="hint">Kies één kansklasse voor het risico en vervolgens per organisatiewaarde de passende effectklasse. De risicoklasse wordt uit de gemaakte matrix opgehaald.</p>
+    <h3>Kansklasse</h3>
+    <div class="chance-grid" id="assessmentChances"></div>
+    <h3>Effect per waarde</h3>
+    <div id="assessmentRows"></div>
+    <div class="divider"></div>
+    <div class="assessment-summary">
+      <div class="summary-card"><span>Hoogste risicoklasse</span><strong id="highestRisk">–</strong></div>
+      <div class="summary-card"><span>Beoordeelde waarden</span><strong id="completedValues">0</strong></div>
+    </div>
+    <div class="notice hidden" id="assessmentWarning"></div>
+    <div class="actions">
+      <span></span>
+      <div class="actions-right"><button class="secondary" id="resetAssessmentBtn" type="button">Nieuwe beoordeling</button></div>
+    </div>
+  </section>
+</div>
+
+<script src="assets/app.js" defer></script>
+</body>
+</html>

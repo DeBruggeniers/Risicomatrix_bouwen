@@ -1,0 +1,93 @@
+{
+  "valueCount": 5,
+  "values": [
+    "Veiligheid",
+    "Leefbaarheid",
+    "Bereikbaarheid",
+    "Financieel",
+    "Imago"
+  ],
+  "effectCount": 5,
+  "effectDescriptions": {
+    "Veiligheid": [
+      "Geen letsel",
+      "Licht letsel",
+      "Letsel met verzuim",
+      "Ernstig letsel",
+      "Fataal of blijvend letsel"
+    ],
+    "Leefbaarheid": [
+      "Geen merkbare hinder",
+      "Beperkte tijdelijke hinder",
+      "Merkbare hinder",
+      "Langdurige hinder",
+      "Grote structurele aantasting"
+    ],
+    "Bereikbaarheid": [
+      "Geen noemenswaardige hinder",
+      "Korte lokale hinder",
+      "Merkbare vertraging",
+      "Langdurige stremming",
+      "Volledige langdurige uitval"
+    ],
+    "Financieel": [
+      "< EUR 1.000",
+      "EUR 1.000 - 10.000",
+      "EUR 10.000 - 100.000",
+      "EUR 100.000 - 1.000.000",
+      "> EUR 1.000.000"
+    ],
+    "Imago": [
+      "Geen externe aandacht",
+      "Lokale aandacht",
+      "Regionale aandacht",
+      "Landelijke aandacht",
+      "Langdurige reputatieschade"
+    ]
+  },
+  "chanceCount": 5,
+  "chanceDescriptions": [
+    "Zeer onwaarschijnlijk",
+    "Onwaarschijnlijk",
+    "Mogelijk",
+    "Waarschijnlijk",
+    "Zeer waarschijnlijk"
+  ],
+  "riskMatrix": [
+    [
+      "very-low",
+      "very-low",
+      "low",
+      "low",
+      "medium"
+    ],
+    [
+      "very-low",
+      "low",
+      "low",
+      "medium",
+      "high"
+    ],
+    [
+      "low",
+      "low",
+      "medium",
+      "high",
+      "high"
+    ],
+    [
+      "low",
+      "medium",
+      "high",
+      "high",
+      "very-high"
+    ],
+    [
+      "medium",
+      "high",
+      "high",
+      "very-high",
+      "very-high"
+    ]
+  ]
+}

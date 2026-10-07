@@ -1,93 +1,53 @@
 window.PUBLISHED_RISK_CONFIG = {
-  "valueCount": 5,
+  "valueCount": 3,
   "values": [
     "Veiligheid",
     "Leefbaarheid",
-    "Bereikbaarheid",
-    "Financieel",
-    "Imago"
+    "Bereikbaarheid"
   ],
-  "effectCount": 5,
+  "effectCount": 3,
   "effectDescriptions": {
     "Veiligheid": [
       "Geen letsel",
       "Licht letsel",
-      "Letsel met verzuim",
-      "Ernstig letsel",
-      "Fataal of blijvend letsel"
+      "Letsel met verzuim"
     ],
     "Leefbaarheid": [
       "Geen merkbare hinder",
       "Beperkte tijdelijke hinder",
-      "Merkbare hinder",
-      "Langdurige hinder",
-      "Grote structurele aantasting"
+      "Merkbare hinder"
     ],
     "Bereikbaarheid": [
       "Geen noemenswaardige hinder",
       "Korte lokale hinder",
-      "Merkbare vertraging",
-      "Langdurige stremming",
-      "Volledige langdurige uitval"
-    ],
-    "Financieel": [
-      "< EUR 1.000",
-      "EUR 1.000 - 10.000",
-      "EUR 10.000 - 100.000",
-      "EUR 100.000 - 1.000.000",
-      "> EUR 1.000.000"
-    ],
-    "Imago": [
-      "Geen externe aandacht",
-      "Lokale aandacht",
-      "Regionale aandacht",
-      "Landelijke aandacht",
-      "Langdurige reputatieschade"
+      "Merkbare vertraging"
     ]
   },
-  "chanceCount": 5,
+  "chanceCount": 4,
   "chanceDescriptions": [
     "Zeer onwaarschijnlijk",
     "Onwaarschijnlijk",
     "Mogelijk",
-    "Waarschijnlijk",
-    "Zeer waarschijnlijk"
+    "Waarschijnlijk"
   ],
   "riskMatrix": [
     [
       "very-low",
-      "very-low",
-      "low",
-      "low",
-      "medium"
-    ],
-    [
-      "very-low",
-      "low",
       "low",
       "medium",
       "high"
     ],
     [
       "low",
-      "low",
       "medium",
-      "high",
-      "high"
-    ],
-    [
-      "low",
-      "medium",
-      "high",
       "high",
       "very-high"
     ],
     [
       "medium",
-      "high",
       "high",
       "very-high",
       "very-high"
     ]
   ]
-};
+};\n

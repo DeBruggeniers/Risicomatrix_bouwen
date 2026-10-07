@@ -60,7 +60,7 @@
   try{
     try{await loadFromWorker()}catch(e){await loadFallback()}
     const appScript=document.createElement('script');
-    appScript.src='app.js?v=20261007-7';
+    appScript.src='app.js?v=20261007-8';
     document.body.appendChild(appScript);
   }catch(e){
     document.body.innerHTML='<p style="padding:20px">De risicomatrix kon niet worden geladen. Vernieuw de pagina over enkele seconden.</p>';

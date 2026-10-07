@@ -121,19 +121,14 @@ function syncMatrixRowHeights(){
 
   const leftRows=[...criteriaTable.querySelectorAll('tbody tr')];
   const rightRows=[...riskTable.querySelectorAll('tbody tr')];
+  const allRows=[...leftRows,...rightRows];
 
-  leftRows.forEach(r=>r.style.height='');
-  rightRows.forEach(r=>r.style.height='');
+  allRows.forEach(r=>r.style.height='');
+  if(!allRows.length) return;
 
-  const count=Math.min(leftRows.length,rightRows.length);
-  for(let i=0;i<count;i++){
-    const h=Math.max(
-      leftRows[i].getBoundingClientRect().height,
-      rightRows[i].getBoundingClientRect().height
-    );
-    leftRows[i].style.height=h+'px';
-    rightRows[i].style.height=h+'px';
-  }
+  // Eén uniforme rijhoogte voor alle effectklassen, gebaseerd op de hoogste rij.
+  const uniformHeight=Math.max(...allRows.map(r=>r.getBoundingClientRect().height));
+  allRows.forEach(r=>r.style.height=uniformHeight+'px');
 }
 
 async function init(){

@@ -9,6 +9,44 @@ const EFFECT_CODES=['A','B','C','D','E','F','G'];
 function effectLabel(i){return (EFFECT_PRESETS[config.effectCount]?.[i]||EFFECT_CODES[i]).split('\n')[0]}
 const CHANCE_CODES=['1','2','3','4','5','6','7'];
 
+const CHANCE_PRESETS={
+  3:[
+    'Onwaarschijnlijk\n< 1× per 10 jaar',
+    'Mogelijk\n1× per 1–10 jaar',
+    'Waarschijnlijk\n≥ 1× per jaar'
+  ],
+  4:[
+    'Zeer onwaarschijnlijk\n< 1× per 20 jaar',
+    'Onwaarschijnlijk\n1× per 5–20 jaar',
+    'Waarschijnlijk\n1× per 1–5 jaar',
+    'Zeer waarschijnlijk\n≥ 1× per jaar'
+  ],
+  5:[
+    'Zeer onwaarschijnlijk\n< 1× per 30 jaar',
+    'Onwaarschijnlijk\n1× per 10–30 jaar',
+    'Mogelijk\n1× per 2–10 jaar',
+    'Waarschijnlijk\n1× per 1–2 jaar',
+    'Zeer waarschijnlijk\n≥ 1× per jaar'
+  ],
+  6:[
+    'Zeer onwaarschijnlijk\n< 1× per 30 jaar',
+    'Onwaarschijnlijk\n1× per 10–30 jaar',
+    'Mogelijk\n1× per 5–10 jaar',
+    'Waarschijnlijk\n1× per 1–5 jaar',
+    'Zeer waarschijnlijk\n1–3× per jaar',
+    'Vrijwel zeker\n> 3× per jaar'
+  ],
+  7:[
+    'Zeer laag\n< 1× per 30 jaar',
+    'Laag\n1× per 10–30 jaar',
+    'Beperkt\n1× per 5–10 jaar',
+    'Middel\n1× per 2–5 jaar',
+    'Hoog\n1× per 1–2 jaar',
+    'Zeer hoog\n1–3× per jaar',
+    'Vrijwel zeker\n> 3× per jaar'
+  ]
+};
+
 const EFFECT_PRESETS={
   3:[
     'Klein\nGeen of beperkt negatief effect',
@@ -170,6 +208,15 @@ function applyEffectPreset(){
   config.effectPresetCount=config.effectCount;
 }
 
+function applyChancePreset(){
+  const preset=CHANCE_PRESETS[config.chanceCount]||[];
+  config.chanceDescriptions=Array.from(
+    {length:config.chanceCount},
+    (_,i)=>preset[i]||''
+  );
+  config.chancePresetCount=config.chanceCount;
+}
+
 function saveConfig(){localStorage.setItem(STORAGE_KEY,JSON.stringify(config))}
 function loadDraft(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){config=JSON.parse(raw)}}catch(e){}ensureConfigShape()}
 function renderStepper(){$('stepper').innerHTML=STEP_TITLES.map((t,i)=>`<div class="step ${i+1===currentStep?'active':i+1<currentStep?'done':''}">${i+1}. ${t}</div>`).join('')}
@@ -204,8 +251,17 @@ function renderStep3(){
  bindNav(()=>{document.querySelectorAll('.effect-desc').forEach(x=>config.effectDescriptions[x.dataset.value][Number(x.dataset.i)]=x.value.trim());return true});
 }
 function renderStep4(){
- $('step4').innerHTML=`<h2>Stap 4. Aantal kansklassen</h2><p class="hint">Kies 3 t/m 7 kansklassen.</p><div class="field small"><label>Aantal kansklassen</label><select id="chanceCount">${[3,4,5,6,7].map(n=>`<option value="${n}" ${config.chanceCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="notice" id="chanceCountNotice">Bij ${config.chanceCount} klassen gebruik je: ${CHANCE_CODES.slice(0,config.chanceCount).join(', ')}.</div>${navButtons()}`;
- $('chanceCount').addEventListener('change',e=>{config.chanceCount=Number(e.target.value);ensureConfigShape();$('chanceCountNotice').textContent=`Bij ${config.chanceCount} klassen gebruik je: ${CHANCE_CODES.slice(0,config.chanceCount).join(', ')}.`});bindNav(()=>true);
+ $('step4').innerHTML=`<h2>Stap 4. Aantal kansklassen</h2><p class="hint">Kies 3 t/m 7 kansklassen. In stap 5 worden automatisch passende standaardbeschrijvingen ingevuld. Je kunt deze daarna aanpassen.</p><div class="field small"><label>Aantal kansklassen</label><select id="chanceCount">${[3,4,5,6,7].map(n=>`<option value="${n}" ${config.chanceCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="notice" id="chanceCountNotice">Bij ${config.chanceCount} klassen gebruik je: ${CHANCE_CODES.slice(0,config.chanceCount).join(', ')}.</div>${navButtons()}`;
+ $('chanceCount').addEventListener('change',e=>{
+   config.chanceCount=Number(e.target.value);
+   ensureConfigShape();
+   config.chancePresetCount=null;
+   $('chanceCountNotice').textContent=`Bij ${config.chanceCount} klassen gebruik je: ${CHANCE_CODES.slice(0,config.chanceCount).join(', ')}.`;
+ });
+ bindNav(()=>{
+   if(config.chancePresetCount!==config.chanceCount) applyChancePreset();
+   return true;
+ });
 }
 function renderStep5(){
  $('step5').innerHTML=`<h2>Stap 5. Kansklassen beschrijven</h2><p class="hint">Beschrijf wat iedere kansklasse betekent.</p><div class="class-list">${Array.from({length:config.chanceCount},(_,i)=>`<div class="input-card"><strong>Kansklasse ${i+1}</strong><div class="field"><label>Beschrijving</label><textarea class="chance-desc" data-i="${i}">${esc(config.chanceDescriptions[i]||'')}</textarea></div></div>`).join('')}</div>${navButtons()}`;

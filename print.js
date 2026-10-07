@@ -121,20 +121,18 @@ function syncMatrixRowHeights(){
 
   const leftRows=[...criteriaTable.querySelectorAll('tbody tr')];
   const rightRows=[...riskTable.querySelectorAll('tbody tr')];
-  const allRows=[...leftRows,...rightRows];
+  leftRows.forEach(r=>r.style.height='');
+  rightRows.forEach(r=>r.style.height='');
 
-  allRows.forEach(r=>r.style.height='');
-  if(!allRows.length) return;
-
-  // Eén uniforme rijhoogte voor alle effectklassen. Gebruik de beschikbare
-  // A4-hoogte beter, maar nooit minder dan de hoogste tekstinhoud nodig heeft.
-  const contentHeight=Math.max(...allRows.map(r=>r.getBoundingClientRect().height));
-  const viewportHeight=window.innerHeight||794;
-  const targetHeight=Math.max(contentHeight, Math.min(62, Math.max(46, viewportHeight*0.062)));
-  allRows.forEach(r=>{
-    r.style.height=targetHeight+'px';
-    r.querySelectorAll('td,th').forEach(cell=>cell.style.height=targetHeight+'px');
-  });
+  const count=Math.min(leftRows.length,rightRows.length);
+  for(let i=0;i<count;i++){
+    // De effectbeschrijvingen links bepalen de rijhoogte.
+    // De overeenkomstige matrixrij rechts krijgt exact dezelfde hoogte.
+    const h=leftRows[i].getBoundingClientRect().height;
+    leftRows[i].style.height=h+'px';
+    rightRows[i].style.height=h+'px';
+    rightRows[i].querySelectorAll('td,th').forEach(cell=>cell.style.height=h+'px');
+  }
 }
 
 async function init(){

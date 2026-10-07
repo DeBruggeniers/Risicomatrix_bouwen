@@ -7,6 +7,44 @@ const RISK_LEVELS=[
 ];
 const EFFECT_CODES=['A','B','C','D','E','F','G'];
 const CHANCE_CODES=['1','2','3','4','5','6','7'];
+
+const EFFECT_PRESETS={
+  3:[
+    'Klein\nGeen of beperkt negatief effect',
+    'Matig\nDuidelijk negatief effect, merkbare gevolgen',
+    'Ernstig\nGroot negatief effect, ernstige gevolgen'
+  ],
+  4:[
+    'Verwaarloosbaar\nGeen of nauwelijks merkbaar negatief effect',
+    'Klein\nLicht negatief effect, beperkte gevolgen',
+    'Behoorlijk\nGroot negatief effect, serieuze gevolgen',
+    'Ernstig\nZeer groot negatief effect, ernstige gevolgen'
+  ],
+  5:[
+    'Verwaarloosbaar\nGeen of nauwelijks merkbaar negatief effect',
+    'Klein\nLicht negatief effect, beperkte gevolgen',
+    'Matig\nDuidelijk negatief effect, merkbare gevolgen',
+    'Behoorlijk\nGroot negatief effect, serieuze gevolgen',
+    'Ernstig\nZeer groot negatief effect, ernstige gevolgen'
+  ],
+  6:[
+    'Verwaarloosbaar\nGeen of nauwelijks merkbaar negatief effect',
+    'Klein\nLicht negatief effect, beperkte gevolgen',
+    'Matig\nDuidelijk negatief effect, merkbare gevolgen',
+    'Behoorlijk\nGroot negatief effect, serieuze gevolgen',
+    'Ernstig\nZeer groot negatief effect, ernstige gevolgen',
+    'Zeer ernstig\nZeer ernstige of mogelijk onomkeerbare gevolgen'
+  ],
+  7:[
+    'Zeer klein\nGeen of nauwelijks merkbaar negatief effect',
+    'Klein\nLicht negatief effect, beperkte gevolgen',
+    'Beperkt\nDuidelijk negatief effect, maar goed beheersbare gevolgen',
+    'Matig\nDuidelijk negatief effect, merkbare gevolgen',
+    'Behoorlijk\nGroot negatief effect, serieuze gevolgen',
+    'Ernstig\nZeer groot negatief effect, ernstige gevolgen',
+    'Catastrofaal\nExtreme en/of onomkeerbare gevolgen'
+  ]
+};
 const STORAGE_KEY='risicomatrix-builder-v2';
 const STEP_TITLES=['Waarden','Effectklassen','Effectbeschrijvingen','Kansklassen','Kansbeschrijvingen','Risicohouding'];
 const $=id=>document.getElementById(id);
@@ -120,6 +158,17 @@ function ensureConfigShape(){
  config.chanceDescriptions=Array.from({length:config.chanceCount},(_,i)=>config.chanceDescriptions?.[i]||'');
  if(!Array.isArray(config.riskMatrix)||config.riskMatrix.length!==config.effectCount||config.riskMatrix.some(r=>!Array.isArray(r)||r.length!==config.chanceCount))makeDefaultMatrix();
 }
+function applyEffectPreset(){
+  const preset=EFFECT_PRESETS[config.effectCount]||[];
+  config.values.forEach(v=>{
+    config.effectDescriptions[v]=Array.from(
+      {length:config.effectCount},
+      (_,i)=>preset[i]||''
+    );
+  });
+  config.effectPresetCount=config.effectCount;
+}
+
 function saveConfig(){localStorage.setItem(STORAGE_KEY,JSON.stringify(config))}
 function loadDraft(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){config=JSON.parse(raw)}}catch(e){}ensureConfigShape()}
 function renderStepper(){$('stepper').innerHTML=STEP_TITLES.map((t,i)=>`<div class="step ${i+1===currentStep?'active':i+1<currentStep?'done':''}">${i+1}. ${t}</div>`).join('')}
@@ -137,8 +186,17 @@ function renderStep1(){
  bindNav(()=>{const names=[...document.querySelectorAll('.value-name')].map(x=>x.value.trim());if(names.some(x=>!x)){alert('Vul voor iedere waarde een naam in.');return false}if(new Set(names.map(x=>x.toLowerCase())).size!==names.length){alert('Gebruik iedere waarde maar één keer.');return false}const old=config.effectDescriptions||{};config.values=names;config.effectDescriptions={};names.forEach(v=>config.effectDescriptions[v]=old[v]||Array(config.effectCount).fill(''));ensureConfigShape();return true});
 }
 function renderStep2(){
- $('step2').innerHTML=`<h2>Stap 2. Aantal effectklassen</h2><p class="hint">Kies 3 t/m 7 effectklassen.</p><div class="field small"><label>Aantal effectklassen</label><select id="effectCount">${[3,4,5,6,7].map(n=>`<option value="${n}" ${config.effectCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="notice" id="effectCountNotice">Bij ${config.effectCount} klassen gebruik je: ${EFFECT_CODES.slice(0,config.effectCount).join(', ')}.</div>${navButtons()}`;
- $('effectCount').addEventListener('change',e=>{config.effectCount=Number(e.target.value);ensureConfigShape();$('effectCountNotice').textContent=`Bij ${config.effectCount} klassen gebruik je: ${EFFECT_CODES.slice(0,config.effectCount).join(', ')}.`});bindNav(()=>true);
+ $('step2').innerHTML=`<h2>Stap 2. Aantal effectklassen</h2><p class="hint">Kies 3 t/m 7 effectklassen. In stap 3 worden automatisch passende standaardbeschrijvingen ingevuld. Je kunt deze daarna per organisatiewaarde aanpassen.</p><div class="field small"><label>Aantal effectklassen</label><select id="effectCount">${[3,4,5,6,7].map(n=>`<option value="${n}" ${config.effectCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="notice" id="effectCountNotice">Bij ${config.effectCount} klassen gebruik je: ${EFFECT_CODES.slice(0,config.effectCount).join(', ')}.</div>${navButtons()}`;
+ $('effectCount').addEventListener('change',e=>{
+   config.effectCount=Number(e.target.value);
+   ensureConfigShape();
+   config.effectPresetCount=null;
+   $('effectCountNotice').textContent=`Bij ${config.effectCount} klassen gebruik je: ${EFFECT_CODES.slice(0,config.effectCount).join(', ')}.`;
+ });
+ bindNav(()=>{
+   if(config.effectPresetCount!==config.effectCount) applyEffectPreset();
+   return true;
+ });
 }
 function renderStep3(){
  $('step3').innerHTML=`<h2>Stap 3. Effectbeschrijvingen per waarde</h2><p class="hint">Beschrijf per organisatiewaarde wat iedere effectklasse betekent.</p>${config.values.map(v=>`<h3>${esc(v)}</h3><div class="class-list">${Array.from({length:config.effectCount},(_,i)=>`<div class="input-card"><strong>Effect ${EFFECT_CODES[i]}</strong><div class="field"><label>Beschrijving</label><textarea class="effect-desc" data-value="${esc(v)}" data-i="${i}">${esc(config.effectDescriptions[v]?.[i]||'')}</textarea></div></div>`).join('')}</div>`).join('')}${navButtons()}`;

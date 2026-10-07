@@ -51,12 +51,12 @@ window.PUBLISHED_RISK_CONFIG = {
       "Internationaal negatief in de pers"
     ],
     "Financieel": [
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
+      "< €1000",
+      "> €1000",
+      "> €10.000",
+      "> €100.000",
+      "> €1 mln",
+      "> €10 mln"
     ]
   },
   "chanceCount": 6,
@@ -120,5 +120,5 @@ window.PUBLISHED_RISK_CONFIG = {
   ],
   "effectPresetCount": 6,
   "chancePresetCount": 6,
-  "_publicationId": "pub-1791395342723-ci73jd"
+  "_publicationId": "pub-1791395650566-ys59ev"
 };

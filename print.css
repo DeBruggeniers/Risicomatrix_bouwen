@@ -200,12 +200,12 @@ body{
     line-height:1.12;
   }
   .criteria-table td{
-    font-size:6.1pt;
-    line-height:1.18;
+    font-size:6.8pt;
+    line-height:1.2;
   }
   .criteria-table .effect-label{
     width:19mm;
-    font-size:6.3pt;
+    font-size:6.8pt;
   }
   .risk-table th{
     font-size:6.2pt;
@@ -213,7 +213,7 @@ body{
   }
   .risk-table td{
     min-height:0;
-    font-size:6.2pt;
+    font-size:6.8pt;
     line-height:1.12;
     padding-left:.8mm;
     padding-right:.8mm;

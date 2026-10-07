@@ -172,27 +172,22 @@ function downloadPublishedConfig(){
 function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
 
 async function waitUntilLive(publicationId,status){
-  const configUrl=new URL('config.js',window.location.href);
+  const rawUrl='https://raw.githubusercontent.com/DeBruggeniers/Risicomatrix_bouwen/main/config.js';
   const started=Date.now();
-  const timeoutMs=5*60*1000;
-  let attempt=0;
+  const timeoutMs=60*1000;
 
   while(Date.now()-started<timeoutMs){
-    attempt++;
     const seconds=Math.round((Date.now()-started)/1000);
-    status.innerHTML='<strong>GitHub is bijgewerkt.</strong> Wachten tot GitHub Pages de nieuwe matrix publiceert... ('+seconds+' sec)';
+    status.innerHTML='<strong>GitHub is bijgewerkt.</strong> Controleren of de nieuwe matrix beschikbaar is... ('+seconds+' sec)';
     try{
-      const checkUrl=new URL(configUrl);
-      checkUrl.searchParams.set('t',Date.now().toString());
-      const response=await fetch(checkUrl.toString(),{cache:'no-store'});
+      const checkUrl=rawUrl+'?t='+Date.now();
+      const response=await fetch(checkUrl,{cache:'no-store'});
       if(response.ok){
         const text=await response.text();
-        if(text.includes(publicationId)){
-          return true;
-        }
+        if(text.includes(publicationId)) return true;
       }
     }catch(e){}
-    await wait(5000);
+    await wait(2000);
   }
   return false;
 }
@@ -235,7 +230,7 @@ async function publishConfig(){
       useUrl.searchParams.set('t',Date.now().toString());
       status.innerHTML='<strong>✓ Nieuwe risicomatrix staat online.</strong> De gebruikspagina en QR-code gebruiken nu de nieuwe matrix. <a href="'+useUrl.toString()+'">Gebruikspagina openen</a>';
     }else{
-      status.innerHTML='<strong>GitHub is bijgewerkt, maar GitHub Pages is na 5 minuten nog niet bevestigd.</strong> De publicatie kan alsnog doorlopen. Controleer de gebruikspagina over enkele minuten.';
+      status.innerHTML='<strong>GitHub is bijgewerkt, maar de nieuwe configuratie kon binnen 1 minuut nog niet worden bevestigd.</strong> Probeer de gebruikspagina opnieuw te openen.';
     }
   }catch(err){
     status.textContent=err.message||'Publiceren mislukt.';

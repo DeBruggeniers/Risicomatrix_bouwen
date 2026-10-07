@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risicomatrix - PDF en print</title>
+<link rel="stylesheet" href="print.css?v=20261007-1">
+</head>
+<body>
+<div class="screen-toolbar">
+  <button id="printBtn" type="button">Opslaan als PDF / printen</button>
+  <a href="index.html">Terug naar gebruikspagina</a>
+</div>
+
+<main id="printSheet">
+  <header class="print-header">
+    <div>
+      <h1>Risicomatrix</h1>
+      <p>Organisatiewaarden, effectcriteria, kansklassen en risicohouding</p>
+    </div>
+    <div class="print-meta" id="printMeta"></div>
+  </header>
+
+  <section class="matrix-layout">
+    <div class="criteria-area">
+      <div id="effectCriteria"></div>
+    </div>
+    <div class="risk-area">
+      <div id="riskMatrix"></div>
+    </div>
+  </section>
+
+  <section class="chance-section">
+    <h2>Kansklassen</h2>
+    <div id="chanceTable"></div>
+  </section>
+
+  <footer class="print-footer">
+    <span>Gegenereerd vanuit de gepubliceerde risicomatrix</span>
+  </footer>
+</main>
+
+<script src="print.js?v=20261007-1"></script>
+</body>
+</html>

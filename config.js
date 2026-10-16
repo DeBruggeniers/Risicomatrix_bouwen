@@ -53,23 +53,18 @@ window.PUBLISHED_RISK_CONFIG = {
       "Financieel: > € 1.000.000\nEconomisch: Langdurige ontwrichting van economische activiteiten, werkgelegenheid of logistieke ketens / Zeer omvangrijke en langdurige economische ontwrichting met structurele gevolgen"
     ]
   },
-  "chanceCount": 5,
+  "chanceCount": 6,
   "chanceDescriptions": [
     "Zeer onwaarschijnlijk\n> 1× per 30 jaar",
     "Onwaarschijnlijk\n1× per 10–30 jaar",
     "Mogelijk\n1× per 2–10 jaar",
     "Waarschijnlijk\n1× per 1–2 jaar",
-    "Zeer waarschijnlijk\n< 1× per jaar"
+    "Zeer waarschijnlijk\n< 1× per jaar",
+    "Vrijwel Zeker - dagelijks/wekelijks"
   ],
   "riskMatrix": [
     [
       "very-low",
-      "very-low",
-      "very-low",
-      "low",
-      "low"
-    ],
-    [
       "very-low",
       "very-low",
       "low",
@@ -78,9 +73,18 @@ window.PUBLISHED_RISK_CONFIG = {
     ],
     [
       "very-low",
+      "very-low",
       "low",
       "low",
       "medium",
+      "medium"
+    ],
+    [
+      "very-low",
+      "low",
+      "low",
+      "medium",
+      "high",
       "high"
     ],
     [
@@ -88,6 +92,7 @@ window.PUBLISHED_RISK_CONFIG = {
       "medium",
       "medium",
       "high",
+      "very-high",
       "very-high"
     ],
     [
@@ -95,10 +100,11 @@ window.PUBLISHED_RISK_CONFIG = {
       "high",
       "high",
       "very-high",
+      "very-high",
       "very-high"
     ]
   ],
   "effectPresetCount": 5,
-  "chancePresetCount": 5,
-  "_publicationId": "pub-1791900268863-nz0cab"
+  "chancePresetCount": 6,
+  "_publicationId": "pub-1792138804972-0s13gu"
 };

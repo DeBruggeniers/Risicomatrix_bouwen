@@ -231,7 +231,7 @@ function saveVisibleStep(){
 }
 function goToStep(target){if(!saveVisibleStep())return;if(target==='final'){showFinal();return}currentStep=target;renderStep();window.scrollTo({top:0,behavior:'smooth'})}
 function renderStep(){renderStepper();document.querySelectorAll('.step-panel').forEach((el,i)=>el.classList.toggle('hidden',i+1!==currentStep));({1:renderStep1,2:renderStep2,3:renderStep3,4:renderStep4,5:renderStep5,6:renderStep6})[currentStep]()}
-function navButtons(nextText='Volgende'){return `<div class="actions"><div>${currentStep>1?'<button class="secondary" type="button" class="prevBtn">Vorige</button>':''}</div><div class="actions-right"><button class="primary" type="button" class="nextBtn">${nextText}</button></div></div>`}
+function navButtons(nextText='Volgende'){return `<div class="actions"><div>${currentStep>1?'<button class="secondary prevBtn" type="button">Vorige</button>':''}</div><div class="actions-right"><button class="primary nextBtn" type="button">${nextText}</button></div></div>`}
 function bindNav(onNext){
  const p=$('step'+currentStep);const bottom=p.querySelector('.actions');if(bottom){const top=bottom.cloneNode(true);top.classList.add('actions-top');(p.querySelector('.hint')||p.querySelector('h2')).insertAdjacentElement('afterend',top)}
  p.querySelectorAll('.prevBtn').forEach(btn=>btn.addEventListener('click',()=>goToStep(currentStep-1)));

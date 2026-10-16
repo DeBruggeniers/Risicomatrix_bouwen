@@ -19,6 +19,13 @@ function fmt(v=''){return esc(v).replace(/\n/g,'<br>');}
 function riskById(id){return RISK_LEVELS.find(r=>r.id===id)||RISK_LEVELS[0];}
 function effectLabel(config,i){return EFFECT_LABELS[config.effectCount]?.[i]||String(i+1);}
 async function loadConfig(){
+  // Local ZIP tests cannot reliably fetch the Worker because file:// has a null origin.
+  // Prefer the locally edited draft, otherwise use the bundled published config.js.
+  if(location.protocol==='file:'){
+    try{const draft=JSON.parse(localStorage.getItem('risicomatrix-builder-v2')||'null');if(draft?.values?.length&&draft?.riskMatrix?.length)return draft;}catch(e){}
+    if(window.PUBLISHED_RISK_CONFIG)return window.PUBLISHED_RISK_CONFIG;
+    throw new Error('Geen lokale risicomatrix beschikbaar. Open bouwen.html en sla een configuratie op.');
+  }
   const res=await fetch(WORKER_URL+'?t='+Date.now(),{cache:'no-store'});
   if(!res.ok) throw new Error('De gepubliceerde risicomatrix kon niet worden opgehaald.');
   const data=await res.json();

@@ -396,6 +396,20 @@ async function publishConfig(){
     $('publishBtn').disabled=false;
   }
 }
+// Bewaar tekst- en matrixwijzigingen direct in de lokale werkversie.
+document.addEventListener('input',event=>{
+ const el=event.target;
+ if(el.matches('.effect-desc')){
+  const v=el.dataset.value,i=Number(el.dataset.i);
+  if(config.effectDescriptions[v]){config.effectDescriptions[v][i]=el.value;saveConfig();}
+ }else if(el.matches('.chance-desc')){
+  config.chanceDescriptions[Number(el.dataset.i)]=el.value;saveConfig();
+ }
+});
+document.addEventListener('change',event=>{
+ const el=event.target;
+ if(el.matches('.risk-select'))saveConfig();
+});
 loadDraft();renderStep();
 $('editMatrixBtn').addEventListener('click',()=>showBuilder(1));
 $('publishBtn').addEventListener('click',publishConfig);

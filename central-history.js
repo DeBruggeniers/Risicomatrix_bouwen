@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const endpoint=(window.PUBLISH_API_URL||'').replace(/\\/$/,'')+'/history';
+const endpoint=(window.PUBLISH_API_URL||'').replace(/[/]+$/, '')+'/history';
 const $=id=>document.getElementById(id);
 const clone=x=>JSON.parse(JSON.stringify(x));
 const say=message=>{const el=$('configStatus');el.textContent=message;el.classList.remove('hidden');};

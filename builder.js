@@ -367,6 +367,7 @@ async function publishConfig(){
   $('publishBtn').disabled=true;
   status.textContent='Risicomatrix publiceren...';
 
+  if(window.RiskConfigManager){const errors=window.RiskConfigManager.validate(config);if(errors.length){status.textContent='Publicatie geweigerd: '+errors.join('; ');$('publishBtn').disabled=false;return;}try{window.RiskConfigManager.snapshot(config,'Voor publicatie')}catch(e){status.textContent='Back-up mislukt: '+e.message;$('publishBtn').disabled=false;return;}}
   const publicationId='pub-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
   const publishedConfig={...config,_publicationId:publicationId};
 
@@ -395,6 +396,20 @@ async function publishConfig(){
     $('publishBtn').disabled=false;
   }
 }
+// Bewaar tekst- en matrixwijzigingen direct in de lokale werkversie.
+document.addEventListener('input',event=>{
+ const el=event.target;
+ if(el.matches('.effect-desc')){
+  const v=el.dataset.value,i=Number(el.dataset.i);
+  if(config.effectDescriptions[v]){config.effectDescriptions[v][i]=el.value;saveConfig();}
+ }else if(el.matches('.chance-desc')){
+  config.chanceDescriptions[Number(el.dataset.i)]=el.value;saveConfig();
+ }
+});
+document.addEventListener('change',event=>{
+ const el=event.target;
+ if(el.matches('.risk-select'))saveConfig();
+});
 loadDraft();renderStep();
 $('editMatrixBtn').addEventListener('click',()=>showBuilder(1));
 $('publishBtn').addEventListener('click',publishConfig);

@@ -55,11 +55,11 @@ window.PUBLISHED_RISK_CONFIG = {
   },
   "chanceCount": 5,
   "chanceDescriptions": [
-    "Zeer onwaarschijnlijk\n> 1× per 30 jaar",
+    "Zeer onwaarschijnlijk\n< 1× per 30 jaar",
     "Onwaarschijnlijk\n1× per 10–30 jaar",
     "Mogelijk\n1× per 2–10 jaar",
     "Waarschijnlijk\n1× per 1–2 jaar",
-    "Zeer waarschijnlijk\n< 1× per jaar"
+    "Zeer waarschijnlijk\n> 1× per jaar"
   ],
   "riskMatrix": [
     [
@@ -100,5 +100,5 @@ window.PUBLISHED_RISK_CONFIG = {
   ],
   "effectPresetCount": 5,
   "chancePresetCount": 5,
-  "_publicationId": "pub-1792142148944-vu637f"
+  "_publicationId": "pub-1792149390743-lbydka"
 };

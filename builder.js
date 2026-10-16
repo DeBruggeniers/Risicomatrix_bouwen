@@ -367,7 +367,7 @@ async function publishConfig(){
   $('publishBtn').disabled=true;
   status.textContent='Risicomatrix publiceren...';
 
-  const publicationId='pub-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
+  if(window.RiskConfigManager){const errors=window.RiskConfigManager.validate(config);if(errors.length){status.textContent='Publicatie geweigerd: '+errors.join('; ');$('publishBtn').disabled=false;return;}try{window.RiskConfigManager.snapshot(config,'Voor publicatie')}catch(e){status.textContent='Back-up mislukt: '+e.message;$('publishBtn').disabled=false;return;}}\n  const publicationId='pub-'+Date.now()+'-'+Math.random().toString(36).slice(2,8);
   const publishedConfig={...config,_publicationId:publicationId};
 
   try{

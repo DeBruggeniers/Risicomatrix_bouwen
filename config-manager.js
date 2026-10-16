@@ -171,7 +171,7 @@ function init(){
  $('exportExcelBtn').onclick=()=>{try{excel(config)}catch(e){say(e.message)}};
  $('exportJsonBtn').onclick=()=>backup(config);
  $('importConfigBtn').onclick=()=>input.click();
- $('restoreConfigBtn').onclick=()=>showHistory(status,say);
+ if($('restoreConfigBtn'))$('restoreConfigBtn').onclick=()=>showHistory(status,say);
  input.onchange=async()=>{
   const file=input.files[0];input.value='';if(!file)return;
   try{

@@ -242,7 +242,7 @@ function renderStep2(){
    $('effectCountNotice').textContent=`Bij ${config.effectCount} klassen gebruik je: ${Array.from({length:config.effectCount},(_,i)=>effectLabel(i)).join(', ')}.`;
  });
  bindNav(()=>{
-   if(config.effectPresetCount!==config.effectCount) applyEffectPreset();
+   if(config.effectPresetCount!==config.effectCount){if(config.values.every(v=>config.effectDescriptions[v]?.every(d=>!String(d||'').trim())))applyEffectPreset();else config.effectPresetCount=config.effectCount;}
    return true;
  });
 }
@@ -259,7 +259,7 @@ function renderStep4(){
    $('chanceCountNotice').textContent=`Bij ${config.chanceCount} klassen gebruik je: ${CHANCE_CODES.slice(0,config.chanceCount).join(', ')}.`;
  });
  bindNav(()=>{
-   if(config.chancePresetCount!==config.chanceCount) applyChancePreset();
+   if(config.chancePresetCount!==config.chanceCount){if(config.chanceDescriptions.every(d=>!String(d||'').trim()))applyChancePreset();else config.chancePresetCount=config.chanceCount;}
    return true;
  });
 }

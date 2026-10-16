@@ -76,7 +76,7 @@ function excel(c){
  add('Effectcriteria',[['Waarde','Effectklasse','Beschrijving'],...c.values.flatMap(v=>c.effectDescriptions[v].map((d,i)=>[v,i+1,d]))]);
  add('Kansklassen',[['Kansklasse','Beschrijving'],...c.chanceDescriptions.map((d,i)=>[i+1,d])]);
  add('Risicohouding',[['Effectklasse','Kansklasse','Risicoklasse'],...c.riskMatrix.flatMap((row,i)=>row.map((r,j)=>[i+1,j+1,r]))]);
- add('Matrix',[['Effect / Kans',...c.chanceDescriptions.map((_,i)=>i+1)],...c.riskMatrix.map((row,i)=>[i+1,...row])]);
+ add('Matrix',[['Effect / Kans',...c.chanceDescriptions.map((_,i)=>i+1)],...c.riskMatrix.map((row,i)=>[i+1,...row]).reverse()]);
  add('Technisch',[['Sleutel','Waarde'],['format','risicomatrix-excel'],['schemaVersion',VERSION],['effectPresetCount',c.effectPresetCount??''],['chancePresetCount',c.chancePresetCount??''],['_publicationId',c._publicationId||'']]);
  XLSX.writeFile(w,'risicomatrix-'+new Date().toISOString().slice(0,10)+'.xlsx');
 }

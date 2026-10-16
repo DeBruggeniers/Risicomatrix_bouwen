@@ -33,3 +33,11 @@ body{margin:0;background:#eef2f7;color:var(--text);font-family:Arial,Helvetica,s
  .chance-number{font-size:7pt;margin-bottom:.5mm}.chance-desc{font-size:5.6pt;line-height:1.1}
  .print-footer{margin-top:.8mm;padding-top:.6mm;font-size:4.8pt}
 }
+
+#printRaster{display:none}
+@media print{
+ body.raster-ready{height:auto!important;max-height:none!important;overflow:visible!important}
+ body.raster-ready #printSheet{display:none!important}
+ body.raster-ready #printRaster{display:block!important;width:287mm!important;height:auto!important;max-height:194mm!important;overflow:hidden!important;break-inside:avoid!important;page-break-inside:avoid!important}
+ body.raster-ready #printRaster img{display:block;width:100%;height:auto;max-height:190mm;object-fit:contain;object-position:top left;break-inside:avoid;page-break-inside:avoid}
+}

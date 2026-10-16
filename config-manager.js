@@ -1,6 +1,10 @@
 (function(){
 'use strict';
 const LEVELS=['very-low','low','medium','high','very-high'];
+const RISK_LABELS={'very-low':'Zeer laag',low:'Laag',medium:'Middel',high:'Hoog','very-high':'Zeer hoog'};
+const RISK_CODES=Object.fromEntries(Object.entries(RISK_LABELS).map(([code,label])=>[label.toLowerCase(),code]));
+const riskToExcel=code=>RISK_LABELS[code]||code;
+const riskFromExcel=value=>{const label=String(value??'').trim();return RISK_CODES[label.toLowerCase()]||label;};
 const VERSION=1, HISTORY_KEY='risicomatrix-builder-history-v1';
 const $=id=>document.getElementById(id);
 const clone=o=>JSON.parse(JSON.stringify(o));
@@ -78,7 +82,7 @@ function excel(c){
  const effectName=(number)=>'IF('+number+'>Algemeen!$B$5,"",INDEX(Klassenlabels!$A$2:$E$8,'+number+',MATCH(Algemeen!$B$5,Klassenlabels!$A$1:$E$1,0)))';
  const inactive=(sh,range,expr)=>sh.addConditionalFormatting({ref:range,rules:[{type:'expression',formulae:[expr],style:{font:{color:{argb:'FFB4BAC3'}}}}]});
  const colors=[['very-low','FF2E7D32','FFFFFFFF'],['low','FF8BC34A','FF102A12'],['medium','FFFFCA28','FF3D3200'],['high','FFFB8C00','FF311700'],['very-high','FFD32F2F','FFFFFFFF']];
- const paint=(sh,range,anchor)=>colors.forEach(([name,bg,fg])=>sh.addConditionalFormatting({ref:range,rules:[{type:'expression',formulae:[anchor+'="'+name+'"'],style:{fill:{type:'pattern',pattern:'solid',fgColor:{argb:bg},bgColor:{argb:bg}},font:{bold:true,color:{argb:fg}}}}]}));
+ const paint=(sh,range,anchor)=>colors.forEach(([name,bg,fg])=>sh.addConditionalFormatting({ref:range,rules:[{type:'expression',formulae:[anchor+'="'+riskToExcel(name)+'"'],style:{fill:{type:'pattern',pattern:'solid',fgColor:{argb:bg},bgColor:{argb:bg}},font:{bold:true,color:{argb:fg}}}}]}));
  const general=make('Algemeen',[['Sleutel','Waarde'],['formaat','risicomatrix-excel'],['schemaVersion',4],['valueCount',c.valueCount],['effectCount',c.effectCount],['chanceCount',c.chanceCount]]);
  general.getColumn(1).width=24;general.getColumn(2).width=30;
  for(const row of [4,5,6]){general.getCell('B'+row).dataValidation={type:'list',allowBlank:false,formulae:[row===4?'"1,2,3,4,5,6,7,8,9,10"':'"3,4,5,6,7"'],showErrorMessage:true,error:'Kies een getal uit de lijst'};general.getCell('B'+row).font={bold:true,color:{argb:'FF1454A4'}}}
@@ -89,9 +93,9 @@ function excel(c){
  const chances=make('Kansklassen',[['Kansklasse','Beschrijving'],...Array.from({length:7},(_,i)=>[i+1,c.chanceDescriptions[i]??''])]);
  chances.getColumn(1).width=19;chances.getColumn(2).width=75;
  for(let i=2;i<=8;i++)inactive(chances,'A'+i+':B'+i,'$A'+i+'>Algemeen!$B$6');
- const risk=make('Risicohouding',[['Effectklasse','Kansklasse','Risicoklasse','Effectnummer','Kansnummer'],...Array.from({length:7},(_,i)=>Array.from({length:7},(_,j)=>[{formula:effectName(i+1)},{formula:'IF('+(j+1)+'>Algemeen!$B$6,"",Kansklassen!B'+(j+2)+')'},c.riskMatrix[i]?.[j]??'',i+1,j+1])).flat()]);
+ const risk=make('Risicohouding',[['Effectklasse','Kansklasse','Risicoklasse','Effectnummer','Kansnummer'],...Array.from({length:7},(_,i)=>Array.from({length:7},(_,j)=>[{formula:effectName(i+1)},{formula:'IF('+(j+1)+'>Algemeen!$B$6,"",Kansklassen!B'+(j+2)+')'},riskToExcel(c.riskMatrix[i]?.[j]??''),i+1,j+1])).flat()]);
  risk.getColumn(1).width=25;risk.getColumn(2).width=65;risk.getColumn(3).width=25;risk.getColumn(4).hidden=true;risk.getColumn(5).hidden=true;
- for(let i=2;i<=50;i++){risk.getCell('C'+i).dataValidation={type:'list',allowBlank:true,formulae:['"very-low,low,medium,high,very-high"'],showErrorMessage:true,error:'Kies een geldige risicoklasse'};inactive(risk,'A'+i+':C'+i,'OR($D'+i+'>Algemeen!$B$5,$E'+i+'>Algemeen!$B$6)')}
+ for(let i=2;i<=50;i++){risk.getCell('C'+i).dataValidation={type:'list',allowBlank:true,formulae:['"Zeer laag,Laag,Middel,Hoog,Zeer hoog"'],showErrorMessage:true,error:'Kies een geldige risicoklasse'};inactive(risk,'A'+i+':C'+i,'OR($D'+i+'>Algemeen!$B$5,$E'+i+'>Algemeen!$B$6)')}
  const matrix=make('Matrix',[['Effect / Kans',...Array.from({length:7},(_,j)=>({formula:'IF('+(j+1)+'<=Algemeen!$B$6,Kansklassen!B'+(j+2)+',"")'}))]]);
  matrix.getColumn(1).width=26;matrix.getColumn(10).hidden=true;matrix.getRow(1).height=65;
  for(let j=2;j<=8;j++){matrix.getColumn(j).width=36;matrix.getCell(1,j).alignment={wrapText:true,vertical:'middle',horizontal:'center'}}
@@ -156,10 +160,10 @@ function parseExcel(buffer){
  const matrix=Array.from({length:ec},()=>Array(cc).fill(null));
  for(const r of rows('Risicohouding').slice(1)){
   if(r.every(x=>x===''))continue;
-  const i=Number(version>=3?r[3]:r[0])-1,j=Number(version>=3?r[4]:r[1])-1,d=String(r[2]??'');
+  const i=Number(version>=3?r[3]:r[0])-1,j=Number(version>=3?r[4]:r[1])-1,d=riskFromExcel(r[2]);
   if(!Number.isInteger(i)||!Number.isInteger(j)||i<0||i>=7||j<0||j>=7)throw Error('Ongeldige matrixcel');
   if(i>=ec||j>=cc){if(d.trim())throw Error('Risicohouding bevat gegevens buiten de gekozen matrixafmeting');continue;}
-  if(matrix[i][j]!==null)throw Error('Dubbele matrixcel');matrix[i][j]=d;
+  if(matrix[i][j]!==null)throw Error('Dubbele matrixcel');if(d&&!LEVELS.includes(d))throw Error('Ongeldige risicoklasse: '+String(r[2]));matrix[i][j]=d;
  }
  if(Object.values(effects).some(v=>v.some(x=>x===null||!x.trim()))||chances.some(x=>x===null||!x.trim())||matrix.some(row=>row.some(x=>x===null||!x.trim())))throw Error('Niet alle actieve effectcriteria, kansklassen en risicocellen zijn ingevuld');
  return {valueCount:vc,values,effectCount:ec,effectDescriptions:effects,chanceCount:cc,chanceDescriptions:chances,riskMatrix:matrix,effectPresetCount:ec,chancePresetCount:cc};

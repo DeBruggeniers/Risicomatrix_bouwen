@@ -21,9 +21,10 @@ body{margin:0;background:#eef2f7;color:var(--text);font-family:Arial,Helvetica,s
 @page{size:A4 landscape;margin:5mm}
 @media print{
  html,body{width:100%;height:auto;margin:0;padding:0;background:#fff;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
- .screen-toolbar{display:none!important} #printSheet{width:100%;max-width:none;margin:0;padding:0;box-shadow:none}
+ .screen-toolbar{display:none!important} #printSheet{position:absolute;left:0;top:0;width:287mm;max-width:none;margin:0;padding:0;box-shadow:none;transform:scale(var(--print-scale,1));transform-origin:top left;break-inside:avoid;page-break-inside:avoid}
+ body{position:relative;height:194mm;max-height:194mm;overflow:hidden}
  .print-header{margin-bottom:1.2mm;padding-bottom:.8mm;border-bottom-width:1px}.print-header h1{font-size:11.5pt;line-height:1}.print-header p{font-size:5.8pt;line-height:1.05;margin-top:.4mm}.print-meta{font-size:5.5pt}
- .combined-table{width:100%;table-layout:fixed;break-inside:avoid;page-break-inside:avoid}
+ .combined-table{width:100%;table-layout:fixed;break-inside:auto;page-break-inside:auto}
  .combined-table th,.combined-table td{padding:1.1mm 1.2mm;border-width:.5px}
  .combined-table thead th{font-size:6.6pt;line-height:1.12}
  .combined-table .effect-head,.combined-table .effect-label{font-size:6.8pt}
@@ -31,4 +32,12 @@ body{margin:0;background:#eef2f7;color:var(--text);font-family:Arial,Helvetica,s
  .combined-table .risk-cell{font-size:6.8pt;line-height:1.12;padding-left:.8mm;padding-right:.8mm}
  .chance-number{font-size:7pt;margin-bottom:.5mm}.chance-desc{font-size:5.6pt;line-height:1.1}
  .print-footer{margin-top:.8mm;padding-top:.6mm;font-size:4.8pt}
+}
+
+#printRaster{display:none}
+@media print{
+ body.raster-ready{height:auto!important;max-height:none!important;overflow:visible!important}
+ body.raster-ready #printSheet{display:none!important}
+ body.raster-ready #printRaster{display:block!important;width:287mm!important;height:auto!important;max-height:194mm!important;overflow:hidden!important;break-inside:avoid!important;page-break-inside:avoid!important}
+ body.raster-ready #printRaster img{display:block;width:100%;height:auto;max-height:190mm;object-fit:contain;object-position:top left;break-inside:avoid;page-break-inside:avoid}
 }

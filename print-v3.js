@@ -19,6 +19,13 @@ function fmt(v=''){return esc(v).replace(/\n/g,'<br>');}
 function riskById(id){return RISK_LEVELS.find(r=>r.id===id)||RISK_LEVELS[0];}
 function effectLabel(config,i){return EFFECT_LABELS[config.effectCount]?.[i]||String(i+1);}
 async function loadConfig(){
+  // Local ZIP tests cannot reliably fetch the Worker because file:// has a null origin.
+  // Prefer the locally edited draft, otherwise use the bundled published config.js.
+  if(location.protocol==='file:'){
+    try{const draft=JSON.parse(localStorage.getItem('risicomatrix-builder-v2')||'null');if(draft?.values?.length&&draft?.riskMatrix?.length)return draft;}catch(e){}
+    if(window.PUBLISHED_RISK_CONFIG)return window.PUBLISHED_RISK_CONFIG;
+    throw new Error('Geen lokale risicomatrix beschikbaar. Open bouwen.html en sla een configuratie op.');
+  }
   const res=await fetch(WORKER_URL+'?t='+Date.now(),{cache:'no-store'});
   if(!res.ok) throw new Error('De gepubliceerde risicomatrix kon niet worden opgehaald.');
   const data=await res.json();
@@ -49,5 +56,22 @@ async function init(){
     document.getElementById('printMeta').textContent=new Date().toLocaleDateString('nl-NL');
   }catch(err){document.getElementById('printSheet').innerHTML='<p class="load-error">'+esc(err.message)+'</p>';}
 }
-document.getElementById('printBtn').addEventListener('click',()=>window.print());
+let printPreparing=false;
+async function printOnePage(){
+ if(printPreparing)return;
+ const btn=document.getElementById('printBtn');const sheet=document.getElementById('printSheet');
+ if(!sheet.querySelector('.combined-table')){alert('De matrix is nog niet geladen.');return}
+ if(typeof html2canvas!=='function'){alert('De PDF-bibliotheek is niet geladen. Controleer je internetverbinding.');return}
+ printPreparing=true;btn.disabled=true;const old=btn.textContent;btn.textContent='PDF voorbereiden...';
+ try{
+  const canvas=await html2canvas(sheet,{backgroundColor:'#ffffff',scale:Math.max(2,Math.min(3,3000/sheet.scrollWidth)),useCORS:true,logging:false});
+  const img=document.createElement('img');img.alt='Volledige risicomatrix';img.src=canvas.toDataURL('image/png');
+  const raster=document.getElementById('printRaster');raster.replaceChildren(img);
+  document.body.classList.add('raster-ready');
+  await new Promise(resolve=>{if(img.complete)resolve();else{img.onload=resolve;img.onerror=resolve}});
+  window.print();
+ }catch(err){alert('PDF voorbereiden mislukt: '+err.message)}
+ finally{btn.disabled=false;btn.textContent=old;printPreparing=false}
+}
+document.getElementById('printBtn').addEventListener('click',printOnePage);
 init();

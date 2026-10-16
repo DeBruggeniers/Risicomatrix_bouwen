@@ -219,13 +219,23 @@ function applyChancePreset(){
 
 function saveConfig(){localStorage.setItem(STORAGE_KEY,JSON.stringify(config))}
 function loadDraft(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){config=JSON.parse(raw)}}catch(e){}ensureConfigShape()}
-function renderStepper(){$('stepper').innerHTML=STEP_TITLES.map((t,i)=>`<div class="step ${i+1===currentStep?'active':i+1<currentStep?'done':''}">${i+1}. ${t}</div>`).join('')}
+function renderStepper(){$('stepper').innerHTML=STEP_TITLES.map((t,i)=>`<button type="button" class="step ${i+1===currentStep?'active':i+1<currentStep?'done':''}" data-step="${i+1}">${i+1}. ${t}</button>`).join('')+'<button type="button" class="step" data-step="final">Eindoverzicht</button>'}
+function saveVisibleStep(){
+ if(currentStep===1){const names=[...document.querySelectorAll('#step1 .value-name')].map(x=>x.value.trim());if(names.some(x=>!x)||new Set(names.map(x=>x.toLowerCase())).size!==names.length){alert('Vul unieke namen in voor alle waarden.');return false}const old=config.effectDescriptions||{};config.values=names;config.effectDescriptions={};names.forEach(v=>config.effectDescriptions[v]=old[v]||Array(config.effectCount).fill(''));}
+ if(currentStep===2&&config.effectPresetCount!==config.effectCount){if(config.values.every(v=>config.effectDescriptions[v]?.every(d=>!String(d||'').trim())))applyEffectPreset();else config.effectPresetCount=config.effectCount;}
+ if(currentStep===3)document.querySelectorAll('#step3 .effect-desc').forEach(x=>config.effectDescriptions[x.dataset.value][Number(x.dataset.i)]=x.value.trim());
+ if(currentStep===4&&config.chancePresetCount!==config.chanceCount){if(config.chanceDescriptions.every(d=>!String(d||'').trim()))applyChancePreset();else config.chancePresetCount=config.chanceCount;}
+ if(currentStep===5)document.querySelectorAll('#step5 .chance-desc').forEach(x=>config.chanceDescriptions[Number(x.dataset.i)]=x.value.trim());
+ if(currentStep===6)document.querySelectorAll('#step6 .risk-select').forEach(x=>config.riskMatrix[Number(x.dataset.e)][Number(x.dataset.c)]=x.value);
+ ensureConfigShape();saveConfig();return true;
+}
+function goToStep(target){if(!saveVisibleStep())return;if(target==='final'){showFinal();return}currentStep=target;renderStep();window.scrollTo({top:0,behavior:'smooth'})}
 function renderStep(){renderStepper();document.querySelectorAll('.step-panel').forEach((el,i)=>el.classList.toggle('hidden',i+1!==currentStep));({1:renderStep1,2:renderStep2,3:renderStep3,4:renderStep4,5:renderStep5,6:renderStep6})[currentStep]()}
-function navButtons(nextText='Volgende'){return `<div class="actions"><div>${currentStep>1?'<button class="secondary" type="button" id="prevBtn">Vorige</button>':''}</div><div class="actions-right"><button class="primary" type="button" id="nextBtn">${nextText}</button></div></div>`}
+function navButtons(nextText='Volgende'){return `<div class="actions"><div>${currentStep>1?'<button class="secondary" type="button" class="prevBtn">Vorige</button>':''}</div><div class="actions-right"><button class="primary" type="button" class="nextBtn">${nextText}</button></div></div>`}
 function bindNav(onNext){
- const p=$('step'+currentStep);const prev=p?.querySelector('#prevBtn');const next=p?.querySelector('#nextBtn');
- prev?.addEventListener('click',()=>{currentStep--;renderStep();window.scrollTo({top:0,behavior:'smooth'})});
- next?.addEventListener('click',()=>{if(onNext()!==false){saveConfig();if(currentStep<6){currentStep++;renderStep();window.scrollTo({top:0,behavior:'smooth'})}}});
+ const p=$('step'+currentStep);const bottom=p.querySelector('.actions');if(bottom){const top=bottom.cloneNode(true);top.classList.add('actions-top');(p.querySelector('.hint')||p.querySelector('h2')).insertAdjacentElement('afterend',top)}
+ p.querySelectorAll('.prevBtn').forEach(btn=>btn.addEventListener('click',()=>goToStep(currentStep-1)));
+ p.querySelectorAll('.nextBtn').forEach(btn=>btn.addEventListener('click',()=>{if(onNext()!==false){saveConfig();if(currentStep<6){currentStep++;renderStep();window.scrollTo({top:0,behavior:'smooth'})}}}));
 }
 function renderStep1(){
  $('step1').innerHTML=`<h2>Stap 1. Organisatiewaarden bepalen</h2><p class="hint">Kies hoeveel waarden je wilt opnemen en geef iedere waarde een naam.</p><div class="field small"><label>Aantal waarden</label><select id="valueCount">${Array.from({length:10},(_,i)=>`<option value="${i+1}" ${config.valueCount===i+1?'selected':''}>${i+1}</option>`).join('')}</select></div><div class="value-list" id="valueInputs"></div>${navButtons()}`;
@@ -410,6 +420,7 @@ document.addEventListener('change',event=>{
  const el=event.target;
  if(el.matches('.risk-select'))saveConfig();
 });
+$('stepper').addEventListener('click',e=>{const btn=e.target.closest('[data-step]');if(!btn)return;const target=btn.dataset.step==='final'?'final':Number(btn.dataset.step);if(target!==currentStep)goToStep(target)});
 loadDraft();renderStep();
 $('editMatrixBtn').addEventListener('click',()=>showBuilder(1));
 $('publishBtn').addEventListener('click',publishConfig);

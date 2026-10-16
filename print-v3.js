@@ -61,15 +61,16 @@ init();
 
 function fitPrintToPage(){
  const sheet=document.getElementById('printSheet');if(!sheet||!sheet.querySelector('.combined-table'))return;
- const mmToPx=96/25.4,pageWidth=287*mmToPx,pageHeight=194*mmToPx;
+ const mmToPx=96/25.4,pageHeight=194*mmToPx;
  sheet.style.setProperty('--print-zoom','1');
  sheet.style.setProperty('--print-width','287mm');
  // Measure the full table at the printable page width, including its header.
  const height=sheet.scrollHeight;
  // A safety margin accommodates browser-specific print rounding.
- const scale=Math.min(1,(pageHeight-20)/Math.max(1,height));
+ const scale=Math.min(1,(pageHeight-55)/Math.max(1,height));
  sheet.style.setProperty('--print-zoom',String(scale));
- sheet.style.setProperty('--print-width',(pageWidth/scale)+'px');
- // The wider pre-scaled layout reduces text wrapping and further lowers height.
+ sheet.style.setProperty('--print-width','287mm');
+ // Keep the natural page width fixed: widening it cancels out the intended scaling.
+ // The extra vertical allowance prevents Chrome from splitting the last row.
 }
 window.addEventListener('beforeprint',fitPrintToPage);

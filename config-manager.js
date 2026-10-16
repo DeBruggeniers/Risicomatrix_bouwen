@@ -79,13 +79,13 @@ function excel(c){
  const inactive=(sh,range,expr)=>sh.addConditionalFormatting({ref:range,rules:[{type:'expression',formulae:[expr],style:{font:{color:{argb:'FFB4BAC3'}}}}]});
  const colors=[['very-low','FF2E7D32','FFFFFFFF'],['low','FF8BC34A','FF102A12'],['medium','FFFFCA28','FF3D3200'],['high','FFFB8C00','FF311700'],['very-high','FFD32F2F','FFFFFFFF']];
  const paint=(sh,range,anchor)=>colors.forEach(([name,bg,fg])=>sh.addConditionalFormatting({ref:range,rules:[{type:'expression',formulae:[anchor+'="'+name+'"'],style:{fill:{type:'pattern',pattern:'solid',fgColor:{argb:bg},bgColor:{argb:bg}},font:{bold:true,color:{argb:fg}}}}]}));
- const general=make('Algemeen',[['Sleutel','Waarde'],['formaat','risicomatrix-excel'],['schemaVersion',3],['valueCount',c.valueCount],['effectCount',c.effectCount],['chanceCount',c.chanceCount]]);
+ const general=make('Algemeen',[['Sleutel','Waarde'],['formaat','risicomatrix-excel'],['schemaVersion',4],['valueCount',c.valueCount],['effectCount',c.effectCount],['chanceCount',c.chanceCount]]);
  general.getColumn(1).width=24;general.getColumn(2).width=30;
  for(const row of [4,5,6]){general.getCell('B'+row).dataValidation={type:'list',allowBlank:false,formulae:[row===4?'"1,2,3,4,5,6,7,8,9,10"':'"3,4,5,6,7"'],showErrorMessage:true,error:'Kies een getal uit de lijst'};general.getCell('B'+row).font={bold:true,color:{argb:'FF1454A4'}}}
- const values=make('Waarden',[['Nummer','Waarde'],...c.values.map((v,i)=>[i+1,v])]);values.getColumn(1).width=15;values.getColumn(2).width=36;
- const effects=make('Effectcriteria',[['Waarde','Effectklasse','Beschrijving','Effectnummer'],...c.values.flatMap(v=>Array.from({length:7},(_,i)=>[v,{formula:effectName(i+1)},c.effectDescriptions[v][i]??'',i+1]))]);
- effects.getColumn(1).width=30;effects.getColumn(2).width=25;effects.getColumn(3).width=80;effects.getColumn(4).hidden=true;
- for(let i=2;i<=1+c.values.length*7;i++)inactive(effects,'A'+i+':C'+i,'$D'+i+'>Algemeen!$B$5');
+ const values=make('Waarden',[['Nummer','Waarde'],...Array.from({length:10},(_,i)=>[i+1,c.values[i]??''])]);values.getColumn(1).width=15;values.getColumn(2).width=36;for(let i=2;i<=11;i++)inactive(values,'A'+i+':B'+i,'$A'+i+'>Algemeen!$B$4');
+ const effects=make('Effectcriteria',[['Waarde','Effectklasse','Beschrijving','Effectnummer'],...Array.from({length:10},(_,k)=>Array.from({length:7},(_,i)=>[{formula:'IF('+(k+1)+'>Algemeen!$B$4,"",Waarden!B'+(k+2)+')'},{formula:effectName(i+1)},c.effectDescriptions[c.values[k]]?.[i]??'',i+1,k+1])).flat()]);
+ effects.getColumn(1).width=30;effects.getColumn(2).width=25;effects.getColumn(3).width=80;effects.getColumn(4).hidden=true;effects.getColumn(5).hidden=true;
+ for(let i=2;i<=71;i++)inactive(effects,'A'+i+':C'+i,'OR($D'+i+'>Algemeen!$B$5,$E'+i+'>Algemeen!$B$4)');
  const chances=make('Kansklassen',[['Kansklasse','Beschrijving'],...Array.from({length:7},(_,i)=>[i+1,c.chanceDescriptions[i]??''])]);
  chances.getColumn(1).width=19;chances.getColumn(2).width=75;
  for(let i=2;i<=8;i++)inactive(chances,'A'+i+':B'+i,'$A'+i+'>Algemeen!$B$6');
@@ -106,19 +106,20 @@ function excel(c){
   }
  }
  paint(matrix,'B2:H8','B2');matrix.protect('',{selectLockedCells:true,selectUnlockedCells:true}).catch(()=>{});
- const overview=make('Overzicht PDF',[['Effectklasse',...c.values,...Array.from({length:7},(_,j)=>({formula:'Matrix!'+String.fromCharCode(66+j)+'1'}))]]);
+ const overview=make('Overzicht PDF',[['Effectklasse',...Array.from({length:10},(_,k)=>({formula:'IF('+(k+1)+'<=Algemeen!$B$4,Waarden!B'+(k+2)+',"")'})),...Array.from({length:7},(_,j)=>({formula:'Matrix!'+String.fromCharCode(66+j)+'1'}))]]);
  overview.getColumn(1).width=25;overview.getRow(1).height=75;
- for(let col=2;col<=1+c.values.length;col++)overview.getColumn(col).width=56;
- for(let col=2+c.values.length;col<=8+c.values.length;col++)overview.getColumn(col).width=26;
- for(let j=2+c.values.length;j<=8+c.values.length;j++)overview.getCell(1,j).alignment={wrapText:true,vertical:'middle'};
+ for(let col=2;col<=11;col++)overview.getColumn(col).width=56;
+ for(let col=12;col<=18;col++)overview.getColumn(col).width=26;
+ for(let col=12;col<=18;col++)overview.getCell(1,col).alignment={wrapText:true,vertical:'middle'};
  for(let i=2;i<=8;i++){
   overview.getRow(i).height=94;overview.getCell(i,1).value={formula:'Matrix!A'+i};
-  c.values.forEach((v,k)=>{overview.getCell(i,k+2).value={formula:'IF(Matrix!$J'+i+'="","",INDEX(Effectcriteria!$C$2:$C$'+(1+c.values.length*7)+','+(k*7)+'+Matrix!$J'+i+'))'};overview.getCell(i,k+2).alignment={wrapText:true,vertical:'middle'}});
-  for(let j=0;j<7;j++){const col=2+c.values.length+j;overview.getCell(i,col).value={formula:'Matrix!'+String.fromCharCode(66+j)+i};overview.getCell(i,col).alignment={horizontal:'center',vertical:'middle',wrapText:true}}
+  for(let k=0;k<10;k++){overview.getCell(i,k+2).value={formula:'IF(OR(Matrix!$J'+i+'="",'+(k+1)+'>Algemeen!$B$4),"",INDEX(Effectcriteria!$C$2:$C$71,'+(k*7)+'+Matrix!$J'+i+'))'};overview.getCell(i,k+2).alignment={wrapText:true,vertical:'middle'}}
+  for(let j=0;j<7;j++){const col=12+j;overview.getCell(i,col).value={formula:'Matrix!'+String.fromCharCode(66+j)+i};overview.getCell(i,col).alignment={horizontal:'center',vertical:'middle',wrapText:true}}
  }
- for(let j=0;j<7;j++){const letter=overview.getColumn(2+c.values.length+j).letter;paint(overview,letter+'2:'+letter+'8',letter+'2')}
+ for(let k=0;k<10;k++)inactive(overview,overview.getColumn(k+2).letter+'1:'+overview.getColumn(k+2).letter+'8',String.fromCharCode(66+k)+'$1=""');
+ for(let j=0;j<7;j++){const letter=overview.getColumn(12+j).letter;paint(overview,letter+'2:'+letter+'8',letter+'2')}
  overview.pageSetup={paperSize:9,orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:1};
- const tech=make('Technisch',[['Sleutel','Waarde'],['format','risicomatrix-excel'],['schemaVersion',3],['effectPresetCount',c.effectPresetCount??''],['chancePresetCount',c.chancePresetCount??''],['_publicationId',c._publicationId||'']]);tech.getColumn(1).width=26;tech.getColumn(2).width=32;
+ const tech=make('Technisch',[['Sleutel','Waarde'],['format','risicomatrix-excel'],['schemaVersion',4],['effectPresetCount',c.effectPresetCount??''],['chancePresetCount',c.chancePresetCount??''],['_publicationId',c._publicationId||'']]);tech.getColumn(1).width=26;tech.getColumn(2).width=32;
  return wb.xlsx.writeBuffer().then(buf=>download('risicomatrix-'+new Date().toISOString().slice(0,10)+'.xlsx',buf,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'));
 }
 function parseExcel(buffer){
@@ -128,16 +129,17 @@ function parseExcel(buffer){
  if(required.some(x=>!wb.Sheets[x]))throw Error('Verplichte tabbladen ontbreken');
  const rows=name=>XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,defval:''});
  const meta=Object.fromEntries(rows('Algemeen').slice(1));
- if(meta.formaat!=='risicomatrix-excel'||![1,2,3].includes(Number(meta.schemaVersion)))throw Error('Onbekende Excelversie');
+ if(meta.formaat!=='risicomatrix-excel'||![1,2,3,4].includes(Number(meta.schemaVersion)))throw Error('Onbekende Excelversie');
  const version=Number(meta.schemaVersion),tech=Object.fromEntries(rows('Technisch').slice(1));
  const ec=Number(meta.effectCount),cc=Number(meta.chanceCount),vc=Number(meta.valueCount);
  if(!Number.isInteger(ec)||ec<3||ec>7||!Number.isInteger(cc)||cc<3||cc>7)throw Error('Effect- en kansklassen moeten tussen 3 en 7 liggen');
- const values=rows('Waarden').slice(1).filter(r=>r[1]!=='').map(r=>String(r[1]));
- if(values.length!==vc)throw Error('Aantal waarden op Algemeen komt niet overeen met Waarden');
+ const valueRows=rows('Waarden').slice(1);const values=version>=4?valueRows.slice(0,vc).map(r=>String(r[1]??'').trim()):valueRows.filter(r=>r[1]!=='').map(r=>String(r[1]));
+ if(values.length!==vc||values.some(v=>!v)||new Set(values.map(v=>v.toLowerCase())).size!==values.length)throw Error('Vul alle actieve waarden op Waarden uniek en volledig in');
  const effects=Object.fromEntries(values.map(v=>[v,Array(ec).fill(null)]));
  for(const r of rows('Effectcriteria').slice(1)){
   if(r.every(x=>x===''))continue;
-  const v=String(r[0]),i=Number(version>=3?r[3]:r[1])-1,d=String(r[2]??'');
+  const valueIndex=version>=4?Number(r[4])-1:-1;const v=version>=4?values[valueIndex]:String(r[0]);const i=Number(version>=3?r[3]:r[1])-1,d=String(r[2]??'');
+  if(version>=4&&valueIndex>=vc){if(d.trim())throw Error('Effectbeschrijving buiten het ingestelde aantal waarden: verwijder deze eerst');continue;}
   if(!(v in effects)||!Number.isInteger(i)||i<0||i>=7)throw Error('Ongeldige effectregel');
   if(i>=ec){if(d.trim())throw Error('Effectklasse '+(i+1)+' bevat gegevens buiten het ingestelde aantal; verwijder deze bewust');continue;}
   if(effects[v][i]!==null)throw Error('Dubbele effectregel');
@@ -178,8 +180,8 @@ function init(){
    else if(/\.json$/i.test(file.name)){const obj=JSON.parse(await file.text());incoming=obj.format==='risicomatrix-backup'&&obj.schemaVersion===VERSION?obj.configuration:obj;}
    else throw Error('Gebruik een .xlsx- of .json-bestand');
    const errors=validate(incoming);if(errors.length)throw Error(errors.join('; '));
-   const n=compare(config,incoming);const structureChanged=config.effectCount!==incoming.effectCount||config.chanceCount!==incoming.chanceCount;
-   if(!confirm((structureChanged?'LET OP: matrixafmeting verandert van '+config.effectCount+'×'+config.chanceCount+' naar '+incoming.effectCount+'×'+incoming.chanceCount+'. Controleer mogelijke verwijdering van gegevens.\n\n':'')+'Import controleren: '+n+' configuratieonderdelen gewijzigd.\nEen lokaal herstelpunt wordt gemaakt.\nDe gepubliceerde versie verandert niet.\n\nImporteren?'))return;
+   const n=compare(config,incoming);const structureChanged=config.valueCount!==incoming.valueCount||config.effectCount!==incoming.effectCount||config.chanceCount!==incoming.chanceCount;
+   if(!confirm((structureChanged?'LET OP: aantal waarden of matrixafmeting verandert. Matrix van '+config.effectCount+'×'+config.chanceCount+' naar '+incoming.effectCount+'×'+incoming.chanceCount+'. Controleer mogelijke verwijdering van gegevens.\n\n':'')+'Import controleren: '+n+' configuratieonderdelen gewijzigd.\nEen lokaal herstelpunt wordt gemaakt.\nDe gepubliceerde versie verandert niet.\n\nImporteren?'))return;
    snapshot(config,'Voor import '+file.name,incoming);const previous=clone(config);try{config=clone(incoming);saveConfig();}catch(err){config=previous;throw err;}showBuilder(1);say('Import geslaagd. Controleer de werkversie vóór publicatie.');
   }catch(e){say('Import geweigerd: '+e.message);}
  };

@@ -69,33 +69,81 @@ function download(name,content,type){
 }
 function backup(c){download('risicomatrix-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({format:'risicomatrix-backup',schemaVersion:VERSION,exportedAt:new Date().toISOString(),configuration:c},null,2),'application/json');}
 function excel(c){
- if(typeof XLSX==='undefined')throw Error('Excelbibliotheek kon niet worden geladen');const w=XLSX.utils.book_new();
- const add=(name,rows)=>XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet(rows),name);
- add('Algemeen',[['Sleutel','Waarde'],['formaat','risicomatrix-excel'],['schemaVersion',VERSION],['valueCount',c.valueCount],['effectCount',c.effectCount],['chanceCount',c.chanceCount]]);
- add('Waarden',[['Nummer','Waarde'],...c.values.map((v,i)=>[i+1,v])]);
- add('Effectcriteria',[['Waarde','Effectklasse','Beschrijving'],...c.values.flatMap(v=>c.effectDescriptions[v].map((d,i)=>[v,i+1,d]))]);
- add('Kansklassen',[['Kansklasse','Beschrijving'],...c.chanceDescriptions.map((d,i)=>[i+1,d])]);
- add('Risicohouding',[['Effectklasse','Kansklasse','Risicoklasse'],...c.riskMatrix.flatMap((row,i)=>row.map((r,j)=>[i+1,j+1,r]))]);
- add('Matrix',[['Effect / Kans',...c.chanceDescriptions.map((_,i)=>i+1)],...c.riskMatrix.map((row,i)=>[i+1,...row]).reverse()]);
- add('Technisch',[['Sleutel','Waarde'],['format','risicomatrix-excel'],['schemaVersion',VERSION],['effectPresetCount',c.effectPresetCount??''],['chancePresetCount',c.chancePresetCount??''],['_publicationId',c._publicationId||'']]);
- XLSX.writeFile(w,'risicomatrix-'+new Date().toISOString().slice(0,10)+'.xlsx');
+ if(typeof ExcelJS==='undefined')throw Error('ExcelJS kon niet worden geladen');
+ const wb=new ExcelJS.Workbook();wb.creator='DeBruggeniers';wb.calcProperties.fullCalcOnLoad=true;
+ const make=(name,rows)=>{const sh=wb.addWorksheet(name);rows.forEach(row=>sh.addRow(row));sh.views=[{state:'frozen',ySplit:1}];sh.getRow(1).font={bold:true,color:{argb:'FFFFFFFF'}};sh.getRow(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF234A84'}};sh.getRow(1).height=26;return sh};
+ const general=make('Algemeen',[['Sleutel','Waarde'],['formaat','risicomatrix-excel'],['schemaVersion',2],['valueCount',c.valueCount],['effectCount',c.effectCount],['chanceCount',c.chanceCount]]);
+ general.getColumn(1).width=24;general.getColumn(2).width=32;
+ for(const row of [5,6]){general.getCell('B'+row).dataValidation={type:'whole',operator:'between',formulae:[3,7],showErrorMessage:true,errorTitle:'Ongeldig aantal',error:'Kies een aantal van 3 t/m 7'};general.getCell('B'+row).font={color:{argb:'FF1454A4'},bold:true}}
+ make('Waarden',[['Nummer','Waarde'],...c.values.map((v,i)=>[i+1,v])]);
+ const effects=make('Effectcriteria',[['Waarde','Effectklasse','Beschrijving'],...c.values.flatMap(v=>Array.from({length:7},(_,i)=>[v,i+1,c.effectDescriptions[v][i]??'']))]);
+ effects.getColumn(1).width=27;effects.getColumn(2).width=18;effects.getColumn(3).width=75;
+ const chances=make('Kansklassen',[['Kansklasse','Beschrijving'],...Array.from({length:7},(_,i)=>[i+1,c.chanceDescriptions[i]??''])]);
+ chances.getColumn(1).width=19;chances.getColumn(2).width=75;
+ const risk=make('Risicohouding',[['Effectklasse','Kansklasse','Risicoklasse'],...Array.from({length:7},(_,i)=>Array.from({length:7},(_,j)=>[i+1,j+1,c.riskMatrix[i]?.[j]??''])).flat()]);
+ risk.getColumn(1).width=20;risk.getColumn(2).width=20;risk.getColumn(3).width=25;
+ for(let i=2;i<=50;i++)risk.getCell('C'+i).dataValidation={type:'list',allowBlank:true,formulae:['"very-low,low,medium,high,very-high"'],showErrorMessage:true,error:'Kies een geldige risicoklasse'};
+ const matrix=make('Matrix',[['Effect / Kans',...Array.from({length:7},(_,j)=>({formula:'IF('+ (j+1)+'<=Algemeen!$B$6,'+(j+1)+',"")'}))]]);
+ matrix.getColumn(1).width=22;
+ for(let j=2;j<=8;j++)matrix.getColumn(j).width=19;
+ for(let i=2;i<=8;i++){
+  matrix.getCell(i,1).value={formula:'IF('+(i-1)+'<=Algemeen!$B$5,Algemeen!$B$5-'+(i-2)+',"")'};
+  matrix.getRow(i).height=34;
+  for(let j=2;j<=8;j++){
+   const letter=String.fromCharCode(64+j);
+   const formula='IF(OR($A'+i+'="",'+letter+'$1=""),"",IFERROR(INDEX(Risicohouding!$C$2:$C$50,($A'+i+'-1)*7+'+letter+'$1),""))';
+   matrix.getCell(i,j).value={formula};
+   matrix.getCell(i,j).alignment={horizontal:'center',vertical:'middle'};
+  }
+ }
+ const colorPairs=[['very-low','FF2E7D32','FFFFFFFF'],['low','FF8BC34A','FF102A12'],['medium','FFFFCA28','FF3D3200'],['high','FFFB8C00','FF311700'],['very-high','FFD32F2F','FFFFFFFF']];
+ for(const [name,bg,fg] of colorPairs){
+  matrix.addConditionalFormatting({ref:'B2:H8',rules:[{type:'expression',formulae:['B2="'+name+'"'],style:{fill:{type:'pattern',pattern:'solid',bgColor:{argb:bg},fgColor:{argb:bg}},font:{color:{argb:fg},bold:true}}}]});
+ }
+ matrix.protect('',{selectLockedCells:true,selectUnlockedCells:true}).catch(()=>{});
+ make('Technisch',[['Sleutel','Waarde'],['format','risicomatrix-excel'],['schemaVersion',2],['effectPresetCount',c.effectPresetCount??''],['chancePresetCount',c.chancePresetCount??''],['_publicationId',c._publicationId||'']]);
+ return wb.xlsx.writeBuffer().then(buf=>download('risicomatrix-'+new Date().toISOString().slice(0,10)+'.xlsx',buf,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'));
 }
 function parseExcel(buffer){
- if(typeof XLSX==='undefined')throw Error('Excelbibliotheek kon niet worden geladen');const w=XLSX.read(buffer,{type:'array'});const required=['Algemeen','Waarden','Effectcriteria','Kansklassen','Risicohouding','Technisch'];
- if(required.some(s=>!w.Sheets[s]))throw Error('Verplichte tabbladen ontbreken');
- const rows=s=>XLSX.utils.sheet_to_json(w.Sheets[s],{header:1,defval:''});
- const meta=Object.fromEntries(rows('Algemeen').slice(1));if(meta.formaat!=='risicomatrix-excel'||Number(meta.schemaVersion)!==VERSION)throw Error('Onbekende Excelversie');
- const tech=Object.fromEntries(rows('Technisch').slice(1));
- const values=rows('Waarden').slice(1).filter(r=>r[1]!== '').map(r=>String(r[1]));
- const ec=Number(meta.effectCount),cc=Number(meta.chanceCount);
+ if(typeof XLSX==='undefined')throw Error('Excelbibliotheek kon niet worden geladen');
+ const wb=XLSX.read(buffer,{type:'array'});
+ const required=['Algemeen','Waarden','Effectcriteria','Kansklassen','Risicohouding','Technisch'];
+ if(required.some(x=>!wb.Sheets[x]))throw Error('Verplichte tabbladen ontbreken');
+ const rows=name=>XLSX.utils.sheet_to_json(wb.Sheets[name],{header:1,defval:''});
+ const meta=Object.fromEntries(rows('Algemeen').slice(1));
+ if(meta.formaat!=='risicomatrix-excel'||![1,2].includes(Number(meta.schemaVersion)))throw Error('Onbekende Excelversie');
+ const version=Number(meta.schemaVersion),tech=Object.fromEntries(rows('Technisch').slice(1));
+ const ec=Number(meta.effectCount),cc=Number(meta.chanceCount),vc=Number(meta.valueCount);
+ if(!Number.isInteger(ec)||ec<3||ec>7||!Number.isInteger(cc)||cc<3||cc>7)throw Error('Effect- en kansklassen moeten tussen 3 en 7 liggen');
+ const values=rows('Waarden').slice(1).filter(r=>r[1]!=='').map(r=>String(r[1]));
+ if(values.length!==vc)throw Error('Aantal waarden op Algemeen komt niet overeen met Waarden');
  const effects=Object.fromEntries(values.map(v=>[v,Array(ec).fill(null)]));
- for(const r of rows('Effectcriteria').slice(1)){const v=String(r[0]),i=Number(r[1])-1;if(!(v in effects)||!Number.isInteger(i)||i<0||i>=ec||effects[v][i]!==null)throw Error('Ongeldige of dubbele effectregel');effects[v][i]=String(r[2]);}
+ for(const r of rows('Effectcriteria').slice(1)){
+  if(r.every(x=>x===''))continue;
+  const v=String(r[0]),i=Number(r[1])-1,d=String(r[2]??'');
+  if(!(v in effects)||!Number.isInteger(i)||i<0||i>=7)throw Error('Ongeldige effectregel');
+  if(i>=ec){if(d.trim())throw Error('Effectklasse '+(i+1)+' bevat gegevens buiten het ingestelde aantal; verwijder deze bewust');continue;}
+  if(effects[v][i]!==null)throw Error('Dubbele effectregel');
+  effects[v][i]=d;
+ }
  const chances=Array(cc).fill(null);
- for(const r of rows('Kansklassen').slice(1)){const i=Number(r[0])-1;if(!Number.isInteger(i)||i<0||i>=cc||chances[i]!==null)throw Error('Ongeldige kansregel');chances[i]=String(r[1]);}
+ for(const r of rows('Kansklassen').slice(1)){
+  if(r.every(x=>x===''))continue;
+  const i=Number(r[0])-1,d=String(r[1]??'');
+  if(!Number.isInteger(i)||i<0||i>=7)throw Error('Ongeldige kansregel');
+  if(i>=cc){if(d.trim())throw Error('Kansklasse '+(i+1)+' bevat gegevens buiten het ingestelde aantal; verwijder deze bewust');continue;}
+  if(chances[i]!==null)throw Error('Dubbele kansregel');chances[i]=d;
+ }
  const matrix=Array.from({length:ec},()=>Array(cc).fill(null));
- for(const r of rows('Risicohouding').slice(1)){const i=Number(r[0])-1,j=Number(r[1])-1;if(!Number.isInteger(i)||!Number.isInteger(j)||i<0||i>=ec||j<0||j>=cc||matrix[i][j]!==null)throw Error('Ongeldige of dubbele matrixcel');matrix[i][j]=String(r[2]);}
- if(Object.values(effects).some(a=>a.includes(null))||chances.includes(null)||matrix.some(a=>a.includes(null)))throw Error('Excelbestand is onvolledig');
- return {valueCount:Number(meta.valueCount),values,effectCount:ec,effectDescriptions:effects,chanceCount:cc,chanceDescriptions:chances,riskMatrix:matrix,effectPresetCount:tech.effectPresetCount===''?null:Number(tech.effectPresetCount),chancePresetCount:tech.chancePresetCount===''?null:Number(tech.chancePresetCount)};
+ for(const r of rows('Risicohouding').slice(1)){
+  if(r.every(x=>x===''))continue;
+  const i=Number(r[0])-1,j=Number(r[1])-1,d=String(r[2]??'');
+  if(!Number.isInteger(i)||!Number.isInteger(j)||i<0||i>=7||j<0||j>=7)throw Error('Ongeldige matrixcel');
+  if(i>=ec||j>=cc){if(d.trim())throw Error('Risicohouding bevat gegevens buiten de gekozen matrixafmeting');continue;}
+  if(matrix[i][j]!==null)throw Error('Dubbele matrixcel');matrix[i][j]=d;
+ }
+ if(Object.values(effects).some(v=>v.some(x=>x===null||!x.trim()))||chances.some(x=>x===null||!x.trim())||matrix.some(row=>row.some(x=>x===null||!x.trim())))throw Error('Niet alle actieve effectcriteria, kansklassen en risicocellen zijn ingevuld');
+ return {valueCount:vc,values,effectCount:ec,effectDescriptions:effects,chanceCount:cc,chanceDescriptions:chances,riskMatrix:matrix,effectPresetCount:tech.effectPresetCount===''?null:Number(tech.effectPresetCount),chancePresetCount:tech.chancePresetCount===''?null:Number(tech.chancePresetCount)};
 }
 function compare(a,b){let changed=0;for(const k of ['values','effectDescriptions','chanceDescriptions','riskMatrix','valueCount','effectCount','chanceCount'])if(JSON.stringify(a[k])!==JSON.stringify(b[k]))changed++;return changed;}
 function init(){
@@ -113,8 +161,8 @@ function init(){
    else if(/\.json$/i.test(file.name)){const obj=JSON.parse(await file.text());incoming=obj.format==='risicomatrix-backup'&&obj.schemaVersion===VERSION?obj.configuration:obj;}
    else throw Error('Gebruik een .xlsx- of .json-bestand');
    const errors=validate(incoming);if(errors.length)throw Error(errors.join('; '));
-   const n=compare(config,incoming);
-   if(!confirm('Import controleren: '+n+' configuratieonderdelen gewijzigd.\nEen lokaal herstelpunt wordt gemaakt.\nDe gepubliceerde versie verandert niet.\n\nImporteren?'))return;
+   const n=compare(config,incoming);const structureChanged=config.effectCount!==incoming.effectCount||config.chanceCount!==incoming.chanceCount;
+   if(!confirm((structureChanged?'LET OP: matrixafmeting verandert van '+config.effectCount+'×'+config.chanceCount+' naar '+incoming.effectCount+'×'+incoming.chanceCount+'. Controleer mogelijke verwijdering van gegevens.\n\n':'')+'Import controleren: '+n+' configuratieonderdelen gewijzigd.\nEen lokaal herstelpunt wordt gemaakt.\nDe gepubliceerde versie verandert niet.\n\nImporteren?'))return;
    snapshot(config,'Voor import '+file.name,incoming);const previous=clone(config);try{config=clone(incoming);saveConfig();}catch(err){config=previous;throw err;}showBuilder(1);say('Import geslaagd. Controleer de werkversie vóór publicatie.');
   }catch(e){say('Import geweigerd: '+e.message);}
  };

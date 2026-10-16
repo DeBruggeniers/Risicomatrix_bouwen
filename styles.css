@@ -42,3 +42,6 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:
 .effect-reference-item{background:#fff;border:1px solid #dfe5ec;border-radius:10px;padding:10px 12px;min-height:72px}
 .effect-reference-item strong{display:block;color:var(--blue);font-size:12px;margin-bottom:5px}
 .effect-reference-item span{display:block;color:#475467;font-size:12px;line-height:1.4}
+
+/* Navigation enhancements */
+.stepper{grid-template-columns:repeat(7,minmax(0,1fr))}.step{border:1px solid transparent;cursor:pointer;font-family:inherit}.step:hover{border-color:var(--blue);color:var(--blue)}.step.active:hover{color:#fff}.step:focus-visible{outline:3px solid #ffca28;outline-offset:2px}.actions-top{margin:0 0 18px;padding-bottom:12px;border-bottom:1px solid var(--line)}@media(max-width:800px){.stepper{grid-template-columns:repeat(2,minmax(0,1fr))}}

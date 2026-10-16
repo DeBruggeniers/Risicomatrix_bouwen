@@ -56,21 +56,22 @@ async function init(){
     document.getElementById('printMeta').textContent=new Date().toLocaleDateString('nl-NL');
   }catch(err){document.getElementById('printSheet').innerHTML='<p class="load-error">'+esc(err.message)+'</p>';}
 }
-document.getElementById('printBtn').addEventListener('click',()=>window.print());
-init();
-
-function fitPrintToPage(){
- const sheet=document.getElementById('printSheet');
- if(!sheet||!sheet.querySelector('.combined-table'))return;
- // Measure at the actual A4 landscape printable width. Transform does not alter
- // document flow, so the table remains one positioned object during printing.
- sheet.style.setProperty('--print-scale','1');
- const mmToPx=96/25.4;
- const availableWidth=287*mmToPx;
- const availableHeight=190*mmToPx;
- const actualHeight=sheet.scrollHeight;
- const actualWidth=sheet.scrollWidth;
- const scale=Math.min(1,availableWidth/Math.max(1,actualWidth),(availableHeight-24)/Math.max(1,actualHeight));
- sheet.style.setProperty('--print-scale',String(Math.max(0.1,scale*0.97)));
+let printPreparing=false;
+async function printOnePage(){
+ if(printPreparing)return;
+ const btn=document.getElementById('printBtn');const sheet=document.getElementById('printSheet');
+ if(!sheet.querySelector('.combined-table')){alert('De matrix is nog niet geladen.');return}
+ if(typeof html2canvas!=='function'){alert('De PDF-bibliotheek is niet geladen. Controleer je internetverbinding.');return}
+ printPreparing=true;btn.disabled=true;const old=btn.textContent;btn.textContent='PDF voorbereiden...';
+ try{
+  const canvas=await html2canvas(sheet,{backgroundColor:'#ffffff',scale:Math.max(2,Math.min(3,3000/sheet.scrollWidth)),useCORS:true,logging:false});
+  const img=document.createElement('img');img.alt='Volledige risicomatrix';img.src=canvas.toDataURL('image/png');
+  const raster=document.getElementById('printRaster');raster.replaceChildren(img);
+  document.body.classList.add('raster-ready');
+  await new Promise(resolve=>{if(img.complete)resolve();else{img.onload=resolve;img.onerror=resolve}});
+  window.print();
+ }catch(err){alert('PDF voorbereiden mislukt: '+err.message)}
+ finally{btn.disabled=false;btn.textContent=old;printPreparing=false}
 }
-window.addEventListener('beforeprint',fitPrintToPage);
+document.getElementById('printBtn').addEventListener('click',printOnePage);
+init();

@@ -21,7 +21,8 @@ body{margin:0;background:#eef2f7;color:var(--text);font-family:Arial,Helvetica,s
 @page{size:A4 landscape;margin:5mm}
 @media print{
  html,body{width:100%;height:auto;margin:0;padding:0;background:#fff;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
- .screen-toolbar{display:none!important} #printSheet{width:var(--print-width,287mm);max-width:none;margin:0;padding:0;box-shadow:none;zoom:var(--print-zoom,1)}
+ .screen-toolbar{display:none!important} #printSheet{position:absolute;left:0;top:0;width:287mm;max-width:none;margin:0;padding:0;box-shadow:none;transform:scale(var(--print-scale,1));transform-origin:top left;break-inside:avoid;page-break-inside:avoid}
+ body{position:relative;height:194mm;max-height:194mm;overflow:hidden}
  .print-header{margin-bottom:1.2mm;padding-bottom:.8mm;border-bottom-width:1px}.print-header h1{font-size:11.5pt;line-height:1}.print-header p{font-size:5.8pt;line-height:1.05;margin-top:.4mm}.print-meta{font-size:5.5pt}
  .combined-table{width:100%;table-layout:fixed;break-inside:auto;page-break-inside:auto}
  .combined-table th,.combined-table td{padding:1.1mm 1.2mm;border-width:.5px}

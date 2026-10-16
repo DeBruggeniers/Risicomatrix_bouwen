@@ -78,7 +78,37 @@ function excel(c){
  add('Risicohouding',[['Effectklasse','Kansklasse','Risicoklasse'],...c.riskMatrix.flatMap((row,i)=>row.map((r,j)=>[i+1,j+1,r]))]);
  add('Matrix',[['Effect / Kans',...c.chanceDescriptions.map((_,i)=>i+1)],...c.riskMatrix.map((row,i)=>[i+1,...row]).reverse()]);
  add('Technisch',[['Sleutel','Waarde'],['format','risicomatrix-excel'],['schemaVersion',VERSION],['effectPresetCount',c.effectPresetCount??''],['chancePresetCount',c.chancePresetCount??''],['_publicationId',c._publicationId||'']]);
- XLSX.writeFile(w,'risicomatrix-'+new Date().toISOString().slice(0,10)+'.xlsx');
+ // ExcelJS behoudt celopmaak bij het schrijven; SheetJS Community doet dat niet.
+ if(typeof ExcelJS==='undefined')throw Error('Excel-opmaakbibliotheek kon niet worden geladen');
+ const styled=new ExcelJS.Workbook();
+ for(const sheetName of w.SheetNames){
+  const source=XLSX.utils.sheet_to_json(w.Sheets[sheetName],{header:1,defval:''});
+  const target=styled.addWorksheet(sheetName);
+  source.forEach(row=>target.addRow(row));
+  target.views=[{state:'frozen',ySplit:1}];
+  target.getRow(1).font={bold:true,color:{argb:'FFFFFFFF'}};
+  target.getRow(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF234A84'}};
+  target.getRow(1).height=26;
+  target.columns=source[0].map((_,i)=>({width:Math.min(65,Math.max(14,...source.map(row=>String(row[i]??'').length+3)))}));
+  if(sheetName==='Matrix'){
+   const colors={'very-low':['FF2E7D32','FFFFFFFF'],low:['FF8BC34A','FF102A12'],medium:['FFFFCA28','FF3D3200'],high:['FFFB8C00','FF311700'],'very-high':['FFD32F2F','FFFFFFFF']};
+   target.getColumn(1).width=19;
+   for(let col=2;col<=c.chanceCount+1;col++)target.getColumn(col).width=17;
+   for(let row=2;row<=c.effectCount+1;row++){
+    target.getRow(row).height=34;
+    const label=target.getCell(row,1);label.font={bold:true};label.alignment={horizontal:'center',vertical:'middle'};
+    for(let col=2;col<=c.chanceCount+1;col++){
+     const cell=target.getCell(row,col),pair=colors[cell.value];
+     if(!pair)throw Error('Onbekende risicoklasse in matrix');
+     cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:pair[0]}};
+     cell.font={bold:true,color:{argb:pair[1]}};
+     cell.alignment={horizontal:'center',vertical:'middle'};
+     cell.border={top:{style:'thin',color:{argb:'FFFFFFFF'}},left:{style:'thin',color:{argb:'FFFFFFFF'}},bottom:{style:'thin',color:{argb:'FFFFFFFF'}},right:{style:'thin',color:{argb:'FFFFFFFF'}}};
+    }
+   }
+  }
+ }
+ styled.xlsx.writeBuffer().then(buffer=>download('risicomatrix-'+new Date().toISOString().slice(0,10)+'.xlsx',buffer,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')).catch(err=>{const status=$('configStatus');status.textContent='Excel-export mislukt: '+err.message;status.classList.remove('hidden')});
 }
 function parseExcel(buffer){
  if(typeof XLSX==='undefined')throw Error('Excelbibliotheek kon niet worden geladen');const w=XLSX.read(buffer,{type:'array'});const required=['Algemeen','Waarden','Effectcriteria','Kansklassen','Risicohouding','Technisch'];

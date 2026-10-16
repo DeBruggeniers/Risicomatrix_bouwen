@@ -16,10 +16,53 @@ function validate(c){
  if(!Array.isArray(c.riskMatrix)||c.riskMatrix.length!==c.effectCount||c.riskMatrix.some(row=>!Array.isArray(row)||row.length!==c.chanceCount||row.some(x=>!LEVELS.includes(x))))errors.push('Risicomatrix ongeldig');
  return errors;
 }
-function snapshot(c,label){
- const history=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
- history.unshift({date:new Date().toISOString(),label,config:clone(c)});
- localStorage.setItem(HISTORY_KEY,JSON.stringify(history.slice(0,15)));
+const MAX_HISTORY=25;
+function differences(before,after){
+ const out=[];
+ const a=before.values||[],b=after.values||[];
+ for(const v of b.filter(x=>!a.includes(x)))out.push('Waarde toegevoegd: '+v);
+ for(const v of a.filter(x=>!b.includes(x)))out.push('Waarde verwijderd: '+v);
+ if(before.effectCount!==after.effectCount)out.push('Aantal effectklassen aangepast: '+before.effectCount+' → '+after.effectCount);
+ if(before.chanceCount!==after.chanceCount)out.push('Aantal kansklassen aangepast: '+before.chanceCount+' → '+after.chanceCount);
+ for(const v of b.filter(x=>a.includes(x))){
+  const old=before.effectDescriptions?.[v]||[],now=after.effectDescriptions?.[v]||[];
+  const count=now.filter((x,i)=>x!==old[i]).length;
+  if(count)out.push('Effectcriteria '+v+' aangepast ('+count+')');
+ }
+ const chances=(after.chanceDescriptions||[]).filter((x,i)=>x!==(before.chanceDescriptions||[])[i]).length;
+ if(chances)out.push('Kansklassen aangepast ('+chances+')');
+ let risk=0;for(let i=0;i<(after.riskMatrix||[]).length;i++)for(let j=0;j<(after.riskMatrix[i]||[]).length;j++)if(after.riskMatrix[i][j]!==before.riskMatrix?.[i]?.[j])risk++;
+ if(risk)out.push('Risicohouding aangepast ('+risk+' cellen)');
+ return out;
+}
+function historyRead(){const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');return Array.isArray(h)?h:[];}
+function snapshot(c,label,next){
+ const history=historyRead();
+ history.unshift({date:new Date().toISOString(),label,changes:next?differences(c,next):null,config:clone(c)});
+ localStorage.setItem(HISTORY_KEY,JSON.stringify(history.slice(0,MAX_HISTORY)));
+}
+function showHistory(status,say){
+ const old=$('restoreHistoryDialog');if(old)old.remove();
+ const history=historyRead();if(!history.length)return say('Er zijn nog geen lokale herstelpunten.');
+ const overlay=document.createElement('div');overlay.id='restoreHistoryDialog';
+ overlay.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px';
+ const panel=document.createElement('div');panel.style.cssText='background:white;color:#172b4d;border-radius:14px;padding:22px;width:min(650px,100%);max-height:85vh;overflow:auto;box-shadow:0 12px 35px #0003';
+ const title=document.createElement('h2');title.textContent='Herstelpunten (maximaal '+MAX_HISTORY+')';panel.appendChild(title);
+ const hint=document.createElement('p');hint.textContent='Een herstelpunt bewaart de toestand vóór de vermelde wijziging. Oudere herstelpunten zonder wijzigingsinformatie blijven beschikbaar.';panel.appendChild(hint);
+ history.forEach((item,i)=>{
+  const card=document.createElement('div');card.style.cssText='border:1px solid #dbe2ea;border-radius:10px;padding:12px;margin:10px 0';
+  const head=document.createElement('strong');head.textContent=new Date(item.date).toLocaleString('nl-NL')+' — '+item.label;card.appendChild(head);
+  const summary=document.createElement('p');summary.style.margin='8px 0';summary.textContent=Array.isArray(item.changes)?(item.changes.length?item.changes.join(' · '):'Geen inhoudelijke verschillen vastgesteld'):'Wijzigingen bij dit oudere herstelpunt niet vastgelegd';card.appendChild(summary);
+  const button=document.createElement('button');button.type='button';button.className='secondary';button.textContent='Deze versie herstellen';button.onclick=()=>{
+   if(!confirm('Deze oudere werkversie herstellen? De huidige werkversie wordt eerst als herstelpunt opgeslagen. Publicatie gebeurt niet automatisch.'))return;
+   try{
+    snapshot(config,'Voor herstel',item.config);
+    const previous=clone(config);try{config=clone(item.config);saveConfig()}catch(err){config=previous;throw err}
+    overlay.remove();showBuilder(1);say('Herstelpunt geladen. Controleer de werkversie vóór publicatie.');
+   }catch(err){say('Herstel mislukt: '+err.message)}
+  };card.appendChild(button);panel.appendChild(card);
+ });
+ const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='Sluiten';close.onclick=()=>overlay.remove();panel.appendChild(close);overlay.appendChild(panel);document.body.appendChild(overlay);
 }
 function download(name,content,type){
  const u=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),3000);
@@ -61,14 +104,7 @@ function init(){
  $('exportExcelBtn').onclick=()=>{try{excel(config)}catch(e){say(e.message)}};
  $('exportJsonBtn').onclick=()=>backup(config);
  $('importConfigBtn').onclick=()=>input.click();
- $('restoreConfigBtn').onclick=()=>{
-  const history=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');if(!history.length)return say('Er zijn nog geen lokale herstelpunten.');
-  const list=history.map((x,i)=>(i+1)+'. '+x.date+' - '+x.label).join('\n');
-  const selected=prompt('Kies het nummer van een herstelpunt:\n'+list);if(selected===null)return;
-  const item=history[Number(selected)-1];if(!item)return say('Ongeldig nummer.');
-  if(!confirm('Huidige werkversie vervangen door dit herstelpunt?'))return;
-  try{snapshot(config,'Voor herstel');const previous=clone(config);try{config=clone(item.config);saveConfig();}catch(err){config=previous;throw err;}showBuilder(1);}catch(err){return say('Herstel mislukt: '+err.message)}say('Herstelpunt geladen. Publiceer apart om de gebruikspagina te wijzigen.');
- };
+ $('restoreConfigBtn').onclick=()=>showHistory(status,say);
  input.onchange=async()=>{
   const file=input.files[0];input.value='';if(!file)return;
   try{
@@ -79,7 +115,7 @@ function init(){
    const errors=validate(incoming);if(errors.length)throw Error(errors.join('; '));
    const n=compare(config,incoming);
    if(!confirm('Import controleren: '+n+' configuratieonderdelen gewijzigd.\nEen lokaal herstelpunt wordt gemaakt.\nDe gepubliceerde versie verandert niet.\n\nImporteren?'))return;
-   snapshot(config,'Voor import '+file.name);const previous=clone(config);try{config=clone(incoming);saveConfig();}catch(err){config=previous;throw err;}showBuilder(1);say('Import geslaagd. Controleer de werkversie vóór publicatie.');
+   snapshot(config,'Voor import '+file.name,incoming);const previous=clone(config);try{config=clone(incoming);saveConfig();}catch(err){config=previous;throw err;}showBuilder(1);say('Import geslaagd. Controleer de werkversie vóór publicatie.');
   }catch(e){say('Import geweigerd: '+e.message);}
  };
 }

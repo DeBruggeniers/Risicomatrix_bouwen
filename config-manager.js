@@ -26,7 +26,7 @@ function download(name,content,type){
 }
 function backup(c){download('risicomatrix-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify({format:'risicomatrix-backup',schemaVersion:VERSION,exportedAt:new Date().toISOString(),configuration:c},null,2),'application/json');}
 function excel(c){
- const w=XLSX.utils.book_new();
+ if(typeof XLSX==='undefined')throw Error('Excelbibliotheek kon niet worden geladen');const w=XLSX.utils.book_new();
  const add=(name,rows)=>XLSX.utils.book_append_sheet(w,XLSX.utils.aoa_to_sheet(rows),name);
  add('Algemeen',[['Sleutel','Waarde'],['formaat','risicomatrix-excel'],['schemaVersion',VERSION],['valueCount',c.valueCount],['effectCount',c.effectCount],['chanceCount',c.chanceCount]]);
  add('Waarden',[['Nummer','Waarde'],...c.values.map((v,i)=>[i+1,v])]);
@@ -38,7 +38,7 @@ function excel(c){
  XLSX.writeFile(w,'risicomatrix-'+new Date().toISOString().slice(0,10)+'.xlsx');
 }
 function parseExcel(buffer){
- const w=XLSX.read(buffer,{type:'array'});const required=['Algemeen','Waarden','Effectcriteria','Kansklassen','Risicohouding','Technisch'];
+ if(typeof XLSX==='undefined')throw Error('Excelbibliotheek kon niet worden geladen');const w=XLSX.read(buffer,{type:'array'});const required=['Algemeen','Waarden','Effectcriteria','Kansklassen','Risicohouding','Technisch'];
  if(required.some(s=>!w.Sheets[s]))throw Error('Verplichte tabbladen ontbreken');
  const rows=s=>XLSX.utils.sheet_to_json(w.Sheets[s],{header:1,defval:''});
  const meta=Object.fromEntries(rows('Algemeen').slice(1));if(meta.formaat!=='risicomatrix-excel'||Number(meta.schemaVersion)!==VERSION)throw Error('Onbekende Excelversie');
@@ -67,7 +67,7 @@ function init(){
   const selected=prompt('Kies het nummer van een herstelpunt:\n'+list);if(selected===null)return;
   const item=history[Number(selected)-1];if(!item)return say('Ongeldig nummer.');
   if(!confirm('Huidige werkversie vervangen door dit herstelpunt?'))return;
-  snapshot(config,'Voor herstel');config=clone(item.config);saveConfig();showBuilder(1);say('Herstelpunt geladen. Publiceer apart om de gebruikspagina te wijzigen.');
+  try{snapshot(config,'Voor herstel');const previous=clone(config);try{config=clone(item.config);saveConfig();}catch(err){config=previous;throw err;}showBuilder(1);}catch(err){return say('Herstel mislukt: '+err.message)}say('Herstelpunt geladen. Publiceer apart om de gebruikspagina te wijzigen.');
  };
  input.onchange=async()=>{
   const file=input.files[0];input.value='';if(!file)return;
@@ -79,7 +79,7 @@ function init(){
    const errors=validate(incoming);if(errors.length)throw Error(errors.join('; '));
    const n=compare(config,incoming);
    if(!confirm('Import controleren: '+n+' configuratieonderdelen gewijzigd.\nEen lokaal herstelpunt wordt gemaakt.\nDe gepubliceerde versie verandert niet.\n\nImporteren?'))return;
-   snapshot(config,'Voor import '+file.name);config=clone(incoming);saveConfig();showBuilder(1);say('Import geslaagd. Controleer de werkversie vóór publicatie.');
+   snapshot(config,'Voor import '+file.name);const previous=clone(config);try{config=clone(incoming);saveConfig();}catch(err){config=previous;throw err;}showBuilder(1);say('Import geslaagd. Controleer de werkversie vóór publicatie.');
   }catch(e){say('Import geweigerd: '+e.message);}
  };
 }

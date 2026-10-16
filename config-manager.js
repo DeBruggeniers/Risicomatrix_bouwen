@@ -143,7 +143,7 @@ function parseExcel(buffer){
   if(matrix[i][j]!==null)throw Error('Dubbele matrixcel');matrix[i][j]=d;
  }
  if(Object.values(effects).some(v=>v.some(x=>x===null||!x.trim()))||chances.some(x=>x===null||!x.trim())||matrix.some(row=>row.some(x=>x===null||!x.trim())))throw Error('Niet alle actieve effectcriteria, kansklassen en risicocellen zijn ingevuld');
- return {valueCount:vc,values,effectCount:ec,effectDescriptions:effects,chanceCount:cc,chanceDescriptions:chances,riskMatrix:matrix,effectPresetCount:tech.effectPresetCount===''?null:Number(tech.effectPresetCount),chancePresetCount:tech.chancePresetCount===''?null:Number(tech.chancePresetCount)};
+ return {valueCount:vc,values,effectCount:ec,effectDescriptions:effects,chanceCount:cc,chanceDescriptions:chances,riskMatrix:matrix,effectPresetCount:ec,chancePresetCount:cc};
 }
 function compare(a,b){let changed=0;for(const k of ['values','effectDescriptions','chanceDescriptions','riskMatrix','valueCount','effectCount','chanceCount'])if(JSON.stringify(a[k])!==JSON.stringify(b[k]))changed++;return changed;}
 function init(){

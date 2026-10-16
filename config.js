@@ -3,7 +3,7 @@ window.PUBLISHED_RISK_CONFIG = {
   "values": [
     "Bereikbaarheid",
     "Leefbaarheid",
-    "Veilgheid",
+    "Veiligheid",
     "Groen / Milieu",
     "Imago",
     "Financieel / Economisch"
@@ -24,7 +24,7 @@ window.PUBLISHED_RISK_CONFIG = {
       "Aanhoudende en duidelijke overlast, bijvoorbeeld geluid, trillingen, luchtkwaliteit of beleving",
       "Structurele aantasting van leefkwaliteit met duidelijke gezondheids- of welzijnseffecten / Grootschalige en langdurige aantasting van woon-, werk- en leefklimaat"
     ],
-    "Veilgheid": [
+    "Veiligheid": [
       "Geen letsel. Geen merkbare beperking voor gebruikers van de openbare ruimte. Effecten zijn direct herstelbaar zonder aanvullende maatregelen.",
       "Licht letsel mogelijk zonder medische behandeling. Beperkte hinder voor een klein aantal gebruikers. Herstel is eenvoudig en op korte termijn uitvoerbaar.",
       "Letsel waarvoor medische behandeling noodzakelijk is. Effect treft meerdere gebruikers of een duidelijk afgebakend gebied. Herstel vraagt gerichte maatregelen en inzet van middelen.",
@@ -100,5 +100,5 @@ window.PUBLISHED_RISK_CONFIG = {
   ],
   "effectPresetCount": 5,
   "chancePresetCount": 5,
-  "_publicationId": "pub-1792138885190-kmlryv"
+  "_publicationId": "pub-1792142148944-vu637f"
 };
